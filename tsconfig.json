@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    // 其他配置保持不变...
+    "baseUrl": ".", // 基础路径：项目根目录
+    "paths": {      // 路径别名映射
+      "@/*": ["src/*"] // "@/xxx" 对应 "src/xxx"
+    },
+    "esModuleInterop": true,
+    "moduleResolution": "Node16",
+    "module": "Node16"
+  }
+}
