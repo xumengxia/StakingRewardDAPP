@@ -9,6 +9,14 @@
       质押代币并让他授权合约使用，用户 3 把这 1000ETH
       质押进去，之后就能看到自己能拿多少奖励，领完奖励后查余额，就能看到到手的奖励了。
     </header>
+    <div class="content">
+      <el-input
+        v-model="input"
+        style="width: 240px"
+        placeholder="Please input"
+      />
+      <el-button type="primary" @click="handelMint">mint</el-button>
+    </div>
   </div>
 </template>
 
@@ -50,21 +58,53 @@ const signer1 = ref<ethers.Signer | null>(null);
 const provider1 = ref<ethers.Provider | null>(null);
 const address1 = ref(import.meta.env.VITE_TOKEN1_ADDRESS || "");
 const contract1 = ref<ethers.Contract | null>(null);
-async function getToken1Contract() {
+
+async function getToken1Contract1() {
   if (!(await getAccounts()) && !(await requestAccounts())) {
     throw new Error("No ethereum provider found.");
   }
   // 创建provider与区块链通信的桥梁
-  provider1.value = await new ethers.BrowserProvider(getEth());
+  provider1.value = new ethers.BrowserProvider(getEth());
   contract1.value = new ethers.Contract(
     address1.value,
     token1Abi.abi,
-    await provider1.value.getSigner()
+    provider1.value
   );
-  console.log(provider1.value, "---", address1);
+  // contract1.on(contract.filters.CounterInc(), async function ({ args }) {
+  //   console.log(args[0].toString());
+  // });
+
+  console.log("provider1.value", provider1.value, "---", address1);
+}
+
+const signer2 = ref<ethers.Signer | null>(null);
+const provider2 = ref<ethers.Provider | null>(null);
+const address2 = ref(import.meta.env.VITE_TOKEN2_ADDRESS || "");
+const contract2 = ref<ethers.Contract | null>(null);
+const input = ref("");
+const handelMint = () => {
+  contract2.value?.mint(input.value);
+};
+async function getToken1Contract2() {
+  if (!(await getAccounts()) && !(await requestAccounts())) {
+    throw new Error("No ethereum provider found.");
+  }
+  // 创建provider与区块链通信的桥梁
+  provider2.value = new ethers.BrowserProvider(getEth());
+  contract2.value = new ethers.Contract(
+    address2.value,
+    token2Abi.abi,
+    provider2.value
+  );
+  // contract1.on(contract.filters.CounterInc(), async function ({ args }) {
+  //   console.log(args[0].toString());
+  // });
+
+  console.log("provider2.value", provider2.value, "---", token2Abi.abi);
 }
 const main = async () => {
-  await getToken1Contract();
+  await getToken1Contract1();
+  await getToken1Contract2();
 };
 onMounted(async () => {
   main();
@@ -78,6 +118,8 @@ onMounted(async () => {
     margin: 0, 10px;
     display: flex; /* 新增，开启Flex布局 */
     align-items: center;
+  }
+  .content {
   }
 }
 </style>
