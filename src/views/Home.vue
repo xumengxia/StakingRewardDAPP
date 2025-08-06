@@ -80,10 +80,11 @@ async function getToken1Contract1() {
 const signer2 = ref<ethers.Signer | null>(null);
 const provider2 = ref<ethers.Provider | null>(null);
 const address2 = ref(import.meta.env.VITE_TOKEN2_ADDRESS || "");
+const address3 = ref(import.meta.env.VITE_STAKINGREWARDS_ADDRESS || "");
 const contract2 = ref<ethers.Contract | null>(null);
 const input = ref("");
 const handelMint = () => {
-  contract2.value?.mint(input.value);
+  contract2.value?.mint(address3, input.value);
 };
 async function getToken1Contract2() {
   if (!(await getAccounts()) && !(await requestAccounts())) {
