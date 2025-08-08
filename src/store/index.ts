@@ -74,6 +74,7 @@ export const useStore = defineStore("walletContracts", {
         ));
 
         await this.fetchContractData();
+        this.setupAccountChangeListener(); // 添加账户变化监听
       } catch (error) {
         this.handleError(error);
       }
@@ -113,7 +114,26 @@ export const useStore = defineStore("walletContracts", {
         this.handleError(error);
       }
     },
+    setupAccountChangeListener() {
+      window.ethereum.on('accountsChanged', (accounts: string[]) => {
+        if (accounts.length === 0) {
+          this.resetState(); // 账户断开连接
+        } else if (accounts[0] !== this.currentAccount) {
+          this.currentAccount = accounts[0];
+          this.initContracts(); // 账户切换时重新初始化
+        }
+      });
 
+      window.ethereum.on('chainChanged', () => {
+        window.location.reload(); // 网络切换时刷新页面
+      });
+    },
+    cleanupListeners() {
+      if (window.ethereum?.removeListener) {
+        window.ethereum.removeListener('accountsChanged', this.handleAccountChange);
+        window.ethereum.removeListener('chainChanged', this.handleChainChange);
+      }
+    },
     resetState() {
       this.$reset();
     },
