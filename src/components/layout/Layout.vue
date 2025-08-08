@@ -39,7 +39,6 @@
     </div>
     <div class="content">
       <div class="header">
-        <!-- <div class="info" v-if="!Store.isConnected">未连接钱包...</div> -->
         <el-button type="primary" @click="goHome">
           <el-icon><i-ep-UserFilled /></el-icon>
         </el-button>
@@ -69,7 +68,6 @@ import { ref, onMounted } from "vue";
 import { Sunny, Moon } from "@element-plus/icons-vue";
 import { useDark, useToggle } from "@vueuse/core";
 import { useStore } from "@/store";
-import { useWallet } from "@/hooks/useWallet.ts";
 import { useRouter } from "vue-router";
 import Disconnect from "@/components/layout/Disconnect.vue";
 const Store = useStore();
@@ -79,7 +77,8 @@ const connectFun = async () => {
     // 已连接
     showDisconnect.value = true;
   } else {
-    await useWallet();
+    // 连接钱包并初始化合约
+    await Store.connectWallet();
   }
   console.log(Store.isConnected, showDisconnect.value);
 };

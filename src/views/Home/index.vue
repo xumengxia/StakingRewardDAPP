@@ -34,14 +34,14 @@
         <div class="p-6 bg-gray-800 rounded-lg">
           <h2 class="text-lg font-semibold">奖励池</h2>
           <p id="reward-pool" class="text-2xl mt-2">
-            {{ Store.totalSupply }} ETH
+            {{ Store.contractData.totalSupply }} ETH
           </p>
         </div>
         <!-- 剩余时长 -->
         <div class="p-6 bg-gray-800 rounded-lg">
           <h2 class="text-lg font-semibold">奖励时长</h2>
           <p id="reward-duration" class="text-2xl mt-2">
-            {{ Store.duration }} 秒
+            {{ Store.contractData.duration }} 秒
           </p>
         </div>
       </div>
@@ -54,21 +54,35 @@
     </div>
     <el-divider />
     <div class="step">
-      <h2 class="mrg-bot">rewardsToken合约</h2>
+      <!-- 质押合约 -->
+      <h2 class="mrg-bot">stakingToken合约</h2>
       <div class="token2">
         <el-input
-          v-model="initialSupply"
+          v-model="stakinitialSupply"
           style="width: 240px"
           placeholder="Eth"
         />
-        <el-button class="mrg-lef" type="primary" @click="mintFun"
+        <el-button class="mrg-lef" type="primary" @click="mintFun('stak')"
           >mint</el-button
         >
       </div>
       <el-divider />
-      <!--  -->
-      <h2 class="mrg-bot">stakingRewards合约</h2>
+      <!-- 奖励合约 -->
+      <h2 class="mrg-bot">rewardsToken合约</h2>
+      <div class="token2">
+        <el-input
+          v-model="rewardsinitialSupply"
+          style="width: 240px"
+          placeholder="Eth"
+        />
+        <el-button class="mrg-lef" type="primary" @click="mintFun('rewards')"
+          >mint</el-button
+        >
+      </div>
+      <el-divider />
 
+      <!-- 质押奖励合约 -->
+      <h2 class="mrg-bot">stakingRewards合约</h2>
       <div class="token2">
         <div>
           <div class="mrg-bot">设置奖励时长</div>
@@ -86,7 +100,7 @@
           <el-button class="mrg-lef" type="primary" @click="checkDurationFun"
             >checkDuration</el-button
           >
-          <!-- <span class="mrg-lef">{{ Store.duration }} 秒</span> -->
+          <!-- <span class="mrg-lef">{{ Store.contractData.duration }} 秒</span> -->
         </div>
         <div class="mrg-bot mrg-top">向质押奖励池注入ETH 作为用户质押收益</div>
         <el-input v-model="amount" style="width: 240px" placeholder="ETH" />
@@ -102,13 +116,19 @@
             <template #label>
               <div class="cell-item">finishAt:</div>
             </template>
-            {{ Store.finishAt }}
+            {{ Store.contractData.finishAt }}
           </el-descriptions-item>
           <el-descriptions-item>
             <template #label>
               <div class="cell-item">updatedAt:</div>
             </template>
-            {{ Store.updatedAt }}
+            {{ Store.contractData.updatedAt }}
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <template #label>
+              <div class="cell-item">duration:</div>
+            </template>
+            {{ Store.contractData.duration }}
           </el-descriptions-item>
         </el-descriptions>
       </div>
@@ -130,9 +150,37 @@ import { validateNumberInput } from "@/utils/validation.ts";
 const Store = useStore();
 
 // 1. 在rewardsToken  中向stakingRwards中mint1000eth
-const initialSupply = ref("");
-const mintFun = () => {
-  Store.rewardsContract.mint(Store.stakingRewardsAddr, initialSupply.value);
+const rewardsinitialSupply = ref("");
+const stakinitialSupply = ref("");
+
+const mintFun = async (type) => {
+  try {
+    if ((type = "rewards")) {
+      const tx = await Store.contracts.rewards.mint(
+        Store.stakingRewardsAddr,
+        rewardsinitialSupply.value
+      );
+      await tx.wait(); // 等待区块确认
+    } else {
+      console.log(Store.currentAccount, "currentAccount");
+
+      //  const stakTx = Store.contracts.staking.mint(
+      //  Store.currentAccount,
+      //   stakinitialSupply.value
+      // );
+      // await stakTx.wait(); // 等待区块确认
+      console.log("成功1");
+
+      //  const stakApproveTx = Store.contracts.staking.mint(
+      //  Store.stakingRewardsAddr,
+      //   stakinitialSupply.value
+      // );
+      // await stakApproveTx.wait(); // 等待区块确认
+      console.log("成功2");
+    }
+  } catch (err) {
+    console.error("stak设置失败:", err);
+  }
 };
 
 // 2. 设置奖励时长1000
@@ -141,11 +189,11 @@ const setRewardsDurationFun = async () => {
   const durationNum = await validateNumberInput(duration.value, "无效时长");
   try {
     // 发送交易 + 等待上链
-    const tx = await Store.stakingRewardsContract.setRewardsDuration(
+    const tx = await Store.contracts.stakingRewards.setRewardsDuration(
       durationNum
     );
     await tx.wait(); // 等待区块确认
-    console.log("时长设置成功！", Store.stakingRewardsContract);
+    console.log("时长设置成功！", Store.contracts.stakingRewards);
     // 确认后立即查询（保证时序）
     await checkDurationFun();
   } catch (err) {
@@ -154,11 +202,11 @@ const setRewardsDurationFun = async () => {
 };
 
 const checkDurationFun = async () => {
-  if (!Store.stakingRewardsContract) return console.error("合约未初始化");
+  if (!Store.contracts.stakingRewards) return console.error("合约未初始化");
   // 调用合约的只读方法（返回 BigNumber，需转字符串）
-  const _duration = await Store.stakingRewardsContract.duration();
+  const _duration = await Store.contracts.stakingRewards.duration();
   Store.$patch({
-    duration: _duration,
+    contractData: { duration: _duration },
   });
 };
 
@@ -167,21 +215,23 @@ const amount = ref(null);
 const notifyRewardAmountFun = async () => {
   try {
     // 发送交易 + 等待上链
-    const tx = await Store.stakingRewardsContract.notifyRewardAmount(
+    const tx = await Store.contracts.stakingRewards.notifyRewardAmount(
       amount.value
     );
     await tx.wait(); // 等待区块确认
-    console.log("注入成功！", Store.stakingRewardsContract);
+    console.log("注入成功！", Store.contracts.stakingRewards);
     await checkFun();
   } catch (err) {
     console.error("设置失败:", err);
   }
 };
 const checkFun = async () => {
-  if (!Store.stakingRewardsContract) return console.error("合约未初始化");
+  if (!Store.contracts.stakingRewards) return console.error("合约未初始化");
   Store.$patch({
-    finishAt: await Store.stakingRewardsContract.finishAt(),
-    updatedAt: await Store.stakingRewardsContract.updatedAt(),
+    contractData: {
+      finishAt: await Store.contracts.stakingRewards.finishAt(),
+      updatedAt: await Store.contracts.stakingRewards.updatedAt(),
+    },
   });
 };
 

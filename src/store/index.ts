@@ -1,5 +1,10 @@
 import { defineStore } from "pinia";
+import { markRaw } from "vue";
+import { ethers } from "ethers";
 import { BrowserProvider, parseUnits, Signer, Contract } from "ethers";
+import token1Abi from "@/contract/artifacts/Token1_metadata.json";
+import token2Abi from "@/contract/artifacts/Token2_metadata.json";
+import stakingRewardsAbi from "@/contract/artifacts/StakingRewards_metadata.json";
 export const useStore = defineStore("walletContracts", {
   state: () => ({
     // 钱包核心对象
@@ -7,25 +12,29 @@ export const useStore = defineStore("walletContracts", {
     signer: null as Signer | null,
     currentAccount: "",
     isConnected: false,
-    totalSupply: null as Number | null,
+
     // 合约实例
-    stakingContract: null as Contract | null,
-    rewardsContract: null as Contract | null,
-    stakingRewardsContract: null as Contract | null,
-    duration: null as Number | null,
-    finishAt: null as Number | null,
-    updatedAt: null as Number | null,
+    contracts: {
+      staking: null as Contract | null,
+      rewards: null as Contract | null,
+      stakingRewards: null as Contract | null,
+    },
+
+    // 合约数据
+    contractData: {
+      totalSupply: null,
+      duration: null,
+      finishAt: null,
+      updatedAt: null,
+    },
+
     // 错误信息
     errorMessage: "",
   }),
   // persist: true,
   getters: {
     // 检查是否所有合约都已初始化
-    allContractsReady: (state) =>
-      !!state.stakingContract &&
-      !!state.rewardsContract &&
-      !!state.stakingRewardsContract,
-
+    allContractsReady: (state) => Object.values(state.contracts).every(Boolean),
     // 格式化显示当前账户（隐藏中间部分）
     formattedAccount: (state) => {
       if (!state.currentAccount) return "";
@@ -36,29 +45,89 @@ export const useStore = defineStore("walletContracts", {
     },
   },
   actions: {
-    // 断开连接时重置状态
-    resetState() {
-      console.log("重置");
+    async initContracts() {
+      try {
+        if (!window.ethereum) throw new Error("MetaMask not installed");
+        
+        this.provider = markRaw(new ethers.BrowserProvider(window.ethereum));
+        this.signer = markRaw(await this.provider.getSigner());
+        const token1Address = import.meta.env.VITE_TOKEN1_ADDRESS;
+        const token2Address = import.meta.env.VITE_TOKEN2_ADDRESS;
+        const stakingRewardsAddress = import.meta.env.VITE_STAKINGREWARDS_ADDRESS;
+        // 使用markRaw包装合约实例
+        this.contracts.staking = markRaw(new ethers.Contract(
+          token1Address,
+          token1Abi.output.abi,
+          this.signer
+        ));
+        
+        this.contracts.rewards = markRaw(new ethers.Contract(
+          token2Address,
+          token2Abi.output.abi,
+          this.signer
+        ));
+        
+        this.contracts.stakingRewards = markRaw(new ethers.Contract(
+          stakingRewardsAddress,
+          stakingRewardsAbi.output.abi,
+          this.signer
+        ));
 
-      this.provider = null;
-      this.signer = null;
-      this.currentAccount = "";
-      this.isConnected = false;
-
-      this.totalSupply = null;
-      this.stakingContract = null;
-      this.rewardsContract = null;
-      this.stakingRewardsContract = null;
-      this.duration = null;
-      this.finishAt = null;
-      this.updatedAt = null;
-      this.errorMessage = "";
+        await this.fetchContractData();
+      } catch (error) {
+        this.handleError(error);
+      }
     },
 
-    // 手动刷新合约（如网络切换后）
+    async fetchContractData() {
+      if (!this.contracts.stakingRewards) return;
+      
+      try {
+        const [duration, finishAt, updatedAt, totalSupply] = await Promise.all([
+          this.contracts.stakingRewards.duration(),
+          this.contracts.stakingRewards.finishAt(),
+          this.contracts.stakingRewards.updatedAt(),
+          this.contracts.staking?.totalSupply()
+        ]);
+        
+        this.contractData = { 
+          duration: Number(duration),
+          finishAt: Number(finishAt),
+          updatedAt: Number(updatedAt),
+          totalSupply: totalSupply ? BigInt(totalSupply.toString()) : null
+        };
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+
+    async connectWallet() {
+      try {
+        const accounts = await window.ethereum.request({ 
+          method: "eth_requestAccounts" 
+        });
+        this.currentAccount = accounts[0];
+        this.isConnected = true;
+        await this.initContracts();
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+
+    resetState() {
+      this.$reset();
+    },
+
     async refreshContracts() {
       if (!this.isConnected) return;
-      await this.connectWallet(); // 复用连接逻辑刷新状态
+      await this.initContracts();
     },
+
+    handleError(error: unknown) {
+      this.errorMessage = error instanceof Error 
+        ? error.message 
+        : "Unknown error occurred";
+      console.error(error);
+    }
   },
 });
