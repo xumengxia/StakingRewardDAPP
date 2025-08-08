@@ -1,6 +1,6 @@
 // src/router/index.ts
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import Home from "@/views/Home.vue";
+import Home from "@/views/Home/index.vue";
 import Staking from "@/views/Staking/index.vue";
 import Withdraw from "@/views/withdraw/index.vue";
 import Profile from "@/views/Profile/index.vue";

@@ -38,18 +38,67 @@
       </div>
     </div>
     <div class="content">
-      <router-view />
+      <div class="header">
+        <!-- <div class="info" v-if="!Store.isConnected">未连接钱包...</div> -->
+        <el-button type="primary" @click="goHome">
+          <el-icon><i-ep-UserFilled /></el-icon>
+        </el-button>
+        <el-button type="primary" @click="connectFun">
+          <el-icon><i-ep-WalletFilled /></el-icon>
+          <span style="margin-right: 5px">
+            {{ Store.isConnected ? Store.formattedAccount : "Connect Wallet" }}
+          </span>
+        </el-button>
+      </div>
+      <div class="con">
+        <router-view />
+      </div>
     </div>
   </div>
+
+  <Disconnect
+    v-model="showDisconnect"
+    v-if="showDisconnect"
+    :fmtAccount="Store.formattedAccount"
+    @handleClose="handleClose"
+  ></Disconnect>
 </template>
 
 <script lang="ts" setup>
+import { ref, onMounted } from "vue";
 import { Sunny, Moon } from "@element-plus/icons-vue";
 import { useDark, useToggle } from "@vueuse/core";
+import { useStore } from "@/store";
+import { useWallet } from "@/hooks/useWallet.ts";
+import { useRouter } from "vue-router";
+import Disconnect from "@/components/layout/Disconnect.vue";
+const Store = useStore();
+const showDisconnect = ref(false);
+const connectFun = async () => {
+  if (Store.isConnected) {
+    // 已连接
+    showDisconnect.value = true;
+  } else {
+    await useWallet();
+  }
+  console.log(Store.isConnected, showDisconnect.value);
+};
 
 const isDark = useDark();
 const toggleDark = () => {
   useToggle(isDark);
+};
+
+const router = useRouter();
+const goHome = () => {
+  router.replace({
+    path: `/profile`,
+  });
+};
+
+const handleClose = () => {
+  showDisconnect.value = false;
+  Store.resetState();
 };
 </script>
 <style scoped lang="scss">
@@ -91,6 +140,21 @@ const toggleDark = () => {
     height: 100%;
     padding-left: 54px;
     padding-right: 54px;
+    .header {
+      width: 100%;
+      height: 80px;
+      display: flex;
+      justify-content: end;
+      align-items: center;
+      .info {
+        margin-right: 10px;
+      }
+    }
+    .con {
+      width: 100%;
+      padding-top: 24px;
+      padding-bottom: 48px;
+    }
   }
 }
 </style>

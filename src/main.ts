@@ -1,10 +1,13 @@
 // src/main.ts
 import { createApp } from "vue";
 import App from "./App.vue";
-import store from "@/store/index.js";
 import router from "@/router/index.js"; // 如果配置了路由
 import "@/styles/global.scss";
 import "element-plus/theme-chalk/dark/css-vars.css";
+import { createPinia } from "pinia";
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
 // import ElementPlus from "element-plus";
 // import "element-plus/dist/index.css"; // 引入 Element Plus 样式
 // import * as ElementPlusIconsVue from "@element-plus/icons-vue"; // 引入图标库
@@ -16,6 +19,6 @@ const app = createApp(App);
 // });
 
 app
-  .use(store)
+  .use(pinia)
   .use(router) // 如果配置了路由
   .mount("#app");
