@@ -55,7 +55,7 @@
     <el-divider />
     <div class="step">
       <!-- 质押合约 -->
-      <h2 class="mrg-bot">stakingToken合约</h2>
+      <h2 class="mrg-bot">staking合约</h2>
       <div class="token2">
         <el-input
           v-model="stakinitialSupply"
@@ -65,10 +65,13 @@
         <el-button class="mrg-lef" type="primary" @click="mintFun('stak')"
           >mint</el-button
         >
+        <el-button class="mrg-lef" type="primary" @click="mintFun('approve')"
+        >approve</el-button
+      >
       </div>
       <el-divider />
       <!-- 奖励合约 -->
-      <h2 class="mrg-bot">rewardsToken合约</h2>
+      <h2 class="mrg-bot">rewards合约</h2>
       <div class="token2">
         <el-input
           v-model="rewardsinitialSupply"
@@ -78,6 +81,16 @@
         <el-button class="mrg-lef" type="primary" @click="mintFun('rewards')"
           >mint</el-button
         >
+        <el-button class="mrg-lef" type="primary" @click="balanceOfFun">balanceOf</el-button>
+        <el-descriptions class="mrg-top" :column="1" border>
+          <el-descriptions-item>
+            <template #label  >
+              <div class="cell-item">balanceOf:</div>
+            </template>
+            {{ Store.contractData.balanceOf }}
+          </el-descriptions-item>
+         
+        </el-descriptions>
       </div>
       <el-divider />
 
@@ -130,7 +143,21 @@
             </template>
             {{ Store.contractData.duration }}
           </el-descriptions-item>
+          <el-descriptions-item>
+            <template #label>
+              <div class="cell-item">earn:</div>
+            </template>
+            {{ Store.contractData.earned }}
+          </el-descriptions-item>
         </el-descriptions>
+
+        <!-- 用户调用该函数向质押合约质押指定数量的代币，
+         合约校验数量有效后，从用户账户划转代币并更新质押余额与总质押量。 -->
+        <div class="mrg-bot mrg-top">用户质押代币</div>
+        <el-input v-model="userStakeAmount" style="width: 240px" placeholder="ETH" />
+        <el-button class="mrg-lef" type="primary" @click="stakeFun">stake</el-button>
+        <el-button class="mrg-lef" type="primary" @click="earnedFun">earned</el-button>
+        <el-button class="mrg-lef" type="primary" @click="getRewardFun">getReward</el-button>
       </div>
       <el-divider />
     </div>
@@ -152,37 +179,44 @@ const Store = useStore();
 // 1. 在rewardsToken  中向stakingRwards中mint1000eth
 const rewardsinitialSupply = ref("");
 const stakinitialSupply = ref("");
-
+const stakingRewardsAddress = import.meta.env.VITE_STAKINGREWARDS_ADDRESS || "";
 const mintFun = async (type) => {
   try {
-    if ((type = "rewards")) {
+    if (type === "rewards") {
       const tx = await Store.contracts.rewards.mint(
-        Store.stakingRewardsAddr,
+        stakingRewardsAddress,
         rewardsinitialSupply.value
       );
       await tx.wait(); // 等待区块确认
-    } else {
+    } else if (type === "stak") {
       console.log(Store.currentAccount, "currentAccount");
 
-      //  const stakTx = Store.contracts.staking.mint(
-      //  Store.currentAccount,
-      //   stakinitialSupply.value
-      // );
-      // await stakTx.wait(); // 等待区块确认
-      console.log("成功1");
-
-      //  const stakApproveTx = Store.contracts.staking.mint(
-      //  Store.stakingRewardsAddr,
-      //   stakinitialSupply.value
-      // );
-      // await stakApproveTx.wait(); // 等待区块确认
-      console.log("成功2");
+       const Tx = await Store.contracts.staking.mint(
+       Store.currentAccount,
+        stakinitialSupply.value
+      );
+      await Tx.wait(); // 等待区块确认
+    } else {
+       const Tx = await Store.contracts.staking.approve(
+        stakingRewardsAddress,
+        stakinitialSupply.value
+      );
+      await Tx.wait(); // 等待区块确认
+     
     }
   } catch (err) {
     console.error("stak设置失败:", err);
   }
 };
-
+const balanceOfFun = async () => {
+  try {
+    const tx = await Store.contracts.rewards.balanceOf(Store.currentAccount);
+    Store.$patch({balanceOf:tx.toString()})
+    console.log("balanceOf成功！",tx);
+  } catch (err) {
+    console.error("balanceOf失败:", err);
+  }
+}
 // 2. 设置奖励时长1000
 const duration = ref("");
 const setRewardsDurationFun = async () => {
@@ -235,11 +269,43 @@ const checkFun = async () => {
   });
 };
 
-// 4.
+// 4.用户质押代币
+const userStakeAmount = ref("");
+const stakeFun = async () => {
+  try {
+    const tx = await Store.contracts.stakingRewards.stake(userStakeAmount.value);
+    await tx.wait(); // 等待区块确认
+    console.log("质押成功！", Store.contracts.stakingRewards);
+  } catch (err) {
+    console.error("质押失败:", err);
+  }
+}
+const earnedFun= async () => {
+  try {
+    const tx = await Store.contracts.stakingRewards.earned(Store.currentAccount);
+    Store.$patch({earned:tx.toString()});
+     // 等待区块确认
+    console.log("earned成功！",tx);
+  } catch (err) {
+    console.error("earned失败:", err);
+  }
+}
+const getRewardFun = async () => {
+  try {
+    const tx = await Store.contracts.stakingRewards.getReward();
+    await tx.wait(); // 等待区块确认
+    console.log("getReward成功！",tx);
+  } catch (err) {
+    console.error("getReward失败:", err);
+  }
+}
 onMounted(async () => {});
 </script>
 
 <style scoped>
+:deep(.el-descriptions__label.el-descriptions__cell.is-bordered-label){
+  width: 30%!important;
+}
 .mrg-top {
   margin-top: 20px;
 }
@@ -249,9 +315,7 @@ onMounted(async () => {});
 .mrg-lef {
   margin-left: 10px;
 }
-.cell-item {
-  width: 30%;
-}
+
 .home {
   .header {
     min-height: 80px;

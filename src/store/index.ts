@@ -26,6 +26,8 @@ export const useStore = defineStore("walletContracts", {
       duration: null,
       finishAt: null,
       updatedAt: null,
+      balanceOf: null,
+      earned: null,
     },
 
     // 错误信息
@@ -84,18 +86,22 @@ export const useStore = defineStore("walletContracts", {
       if (!this.contracts.stakingRewards) return;
       
       try {
-        const [duration, finishAt, updatedAt, totalSupply] = await Promise.all([
+        const [duration, finishAt, updatedAt, totalSupply,balanceOf,earned,] = await Promise.all([
           this.contracts.stakingRewards.duration(),
           this.contracts.stakingRewards.finishAt(),
           this.contracts.stakingRewards.updatedAt(),
-          this.contracts.staking?.totalSupply()
+          this.contracts.staking?.totalSupply(),
+          this.contracts.rewards.balanceOf(this.currentAccount),
+          this.contracts.stakingRewards.earned(this.currentAccount)
         ]);
         
         this.contractData = { 
           duration: Number(duration),
-          finishAt: Number(finishAt),
-          updatedAt: Number(updatedAt),
-          totalSupply: totalSupply ? BigInt(totalSupply.toString()) : null
+          finishAt: new Date(Number(finishAt) * 1000).toLocaleString(),
+          updatedAt: new Date(Number(updatedAt) * 1000).toLocaleString(),
+          totalSupply: totalSupply ? BigInt(totalSupply.toString()) : null,
+          balanceOf:  ethers.formatEther(balanceOf),
+          earned: ethers.formatEther(earned),
         };
       } catch (error) {
         this.handleError(error);
