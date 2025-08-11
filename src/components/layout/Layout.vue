@@ -45,7 +45,11 @@
         <el-button type="primary" @click="connectFun">
           <el-icon><i-ep-WalletFilled /></el-icon>
           <span style="margin-right: 5px">
-            {{ Store.isConnected ? Store.formattedAccount : "Connect Wallet" }}
+            {{
+              Store.isConnected
+                ? Store.formattedAccount(Store.currentAccount)
+                : "Connect Wallet"
+            }}
           </span>
         </el-button>
       </div>
@@ -58,7 +62,7 @@
   <Disconnect
     v-model="showDisconnect"
     v-if="showDisconnect"
-    :fmtAccount="Store.formattedAccount"
+    :fmtAccount="Store.formattedAccount(Store.currentAccount)"
     @handleClose="handleClose"
   ></Disconnect>
 </template>
