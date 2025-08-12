@@ -19,6 +19,11 @@ contract StakingRewards {
     uint256 public totalSupply;
     mapping(address => uint256) public balanceOf;
 
+    // 新增事件：质押、提取和领取奖励
+    event Staked(address indexed user, uint256 amount, uint256 timestamp);
+    event Withdrawn(address indexed user, uint256 amount, uint256 timestamp);
+    event RewardPaid(address indexed user, uint256 reward, uint256 timestamp);
+
     modifier onlyOwner() {
         require(msg.sender == owner, "not owner");
         _;
@@ -47,9 +52,11 @@ contract StakingRewards {
         duration = _duration;
     }
 
-    function notifyRewardAmount(
-        uint256 _amount
-    ) external onlyOwner updateReward(address(0)) {
+    function notifyRewardAmount(uint256 _amount)
+        external
+        onlyOwner
+        updateReward(address(0))
+    {
         if (block.timestamp > finishAt) {
             rewardRate = _amount / duration;
         } else {
@@ -71,6 +78,9 @@ contract StakingRewards {
         stakingToken.transferFrom(msg.sender, address(this), _amount);
         balanceOf[msg.sender] += _amount;
         totalSupply += _amount;
+        
+        // 触发质押事件
+        emit Staked(msg.sender, _amount, block.timestamp);
     }
 
     function withdraw(uint256 _amount) external updateReward(msg.sender) {
@@ -78,6 +88,9 @@ contract StakingRewards {
         balanceOf[msg.sender] -= _amount;
         totalSupply -= _amount;
         stakingToken.transfer(msg.sender, _amount);
+        
+        // 触发提取事件
+        emit Withdrawn(msg.sender, _amount, block.timestamp);
     }
 
     function lastTimeRewardApplicable() public view returns (uint256) {
@@ -107,6 +120,9 @@ contract StakingRewards {
         if (reward > 0) {
             rewards[msg.sender] = 0;
             rewardsToken.transfer(msg.sender, reward);
+            
+            // 触发奖励领取事件
+            emit RewardPaid(msg.sender, reward, block.timestamp);
         }
     }
 
