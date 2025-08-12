@@ -168,18 +168,23 @@ export const useStore = defineStore("walletContracts", {
       if (!this.contracts.rewards) return;
 
       try {
-        const [decimals, name, symbol, totalSupply] = await Promise.all([
-          this.contracts.rewards.decimals(),
-          this.contracts.rewards.name(),
-          this.contracts.rewards.symbol(),
-          this.contracts.rewards.totalSupply(),
-        ]);
+        const [decimals, name, symbol, totalSupply, balance] =
+          await Promise.all([
+            this.contracts.rewards.decimals(),
+            this.contracts.rewards.name(),
+            this.contracts.rewards.symbol(),
+            this.contracts.rewards.totalSupply(),
+            this.contracts.rewards
+              .balanceOf(this.currentAccount)
+              .catch(() => 0),
+          ]);
 
         this.rewardsData = {
           decimals: decimals,
           name: name,
           symbol: symbol,
           totalSupply: ethers.formatEther(totalSupply) + "Eth",
+          balance: ethers.formatEther(balance) + "Eth",
         };
       } catch (error) {
         this.handleError(error);
@@ -189,18 +194,23 @@ export const useStore = defineStore("walletContracts", {
       if (!this.contracts.staking) return;
 
       try {
-        const [decimals, name, symbol, totalSupply] = await Promise.all([
-          this.contracts.staking.decimals(),
-          this.contracts.staking.name(),
-          this.contracts.staking.symbol(),
-          this.contracts.staking.totalSupply(),
-        ]);
+        const [decimals, name, symbol, totalSupply, balance] =
+          await Promise.all([
+            this.contracts.staking.decimals(),
+            this.contracts.staking.name(),
+            this.contracts.staking.symbol(),
+            this.contracts.staking.totalSupply(),
+            this.contracts.staking
+              .balanceOf(this.currentAccount)
+              .catch(() => 0),
+          ]);
 
         this.stakData = {
           decimals: decimals,
           name: name,
           symbol: symbol,
           totalSupply: ethers.formatEther(totalSupply) + "Eth",
+          balance: ethers.formatEther(balance) + "Eth",
         };
       } catch (error) {
         this.handleError(error);

@@ -1,45 +1,40 @@
 <template>
   <div class="withdraw">
-    <!-- 选项卡（提取质押 / 提取奖励） -->
-    <div class="max-w-md mx-auto mb-6">
-      <button id="withdraw-staked" class="px-4 py-2 bg-gray-800 rounded">
-        提取质押
-      </button>
-      <button id="withdraw-reward" class="px-4 py-2 bg-gray-800 rounded ml-2">
-        提取奖励
-      </button>
-    </div>
-
     <!-- 提取质押 -->
     <div
       id="staked-section"
       class="max-w-md mx-auto bg-gray-800 p-6 rounded-lg"
     >
       <h3 class="text-lg font-semibold mb-2">提取质押资产</h3>
-      <p>可提取：<span id="withdraw-staked-amount">0 ETH</span></p>
-      <button
-        id="withdraw-staked-btn"
-        class="mt-4 px-4 py-2 bg-red-600 rounded"
-      >
-        提取
-      </button>
+      <p>
+        可提取：<span id="withdraw-staked-amount"
+          >{{ Store.stakData.balance }}
+        </span>
+      </p>
+      <div class="mrg-top" style="display: flex">
+        <el-input v-model="amount" placeholder="Eth" />
+        <el-button type="primary" class="mrg-lef" @click="withdrawFun"
+          >withdraw</el-button
+        >
+      </div>
     </div>
-
+    <el-divider />
     <!-- 提取奖励（默认隐藏，切换后显示） -->
     <div
       id="reward-section"
       class="max-w-md mx-auto bg-gray-800 p-6 rounded-lg hidden"
     >
       <h3 class="text-lg font-semibold mb-2">提取奖励资产</h3>
-      <p>可提取：<span id="withdraw-reward-amount">0 ETH</span></p>
-      <button
-        id="withdraw-reward-btn"
-        class="mt-4 px-4 py-2 bg-red-600 rounded"
+      <p>
+        可提取：<span id="withdraw-reward-amount">{{
+          Store.rewardsData.balance
+        }}</span>
+      </p>
+      <el-button class="mrg-top" type="primary" @click="getRewardFun"
+        >getReward</el-button
       >
-        领取奖励
-      </button>
     </div>
-
+    <el-divider />
     <!-- 操作记录 -->
     <div class="mt-8 max-w-md mx-auto bg-gray-800 p-6 rounded-lg">
       <h3 class="text-lg font-semibold mb-2">操作记录</h3>
@@ -49,7 +44,27 @@
 </template>
 
 <script setup lang="ts">
-// 页面逻辑
+import { useStore } from "@/store/index";
+const Store = useStore();
+const amount = ref("");
+const withdrawFun = async () => {
+  try {
+    const tx = await Store.contracts.stakingRewards.withdraw(amount.value);
+    await tx.wait(); // 等待区块确认
+    console.log("getReward成功！", tx);
+  } catch (err) {
+    console.error("getReward失败:", err);
+  }
+};
+const getRewardFun = async () => {
+  try {
+    const tx = await Store.contracts.stakingRewards.getReward();
+    await tx.wait(); // 等待区块确认
+    console.log("getReward成功！", tx);
+  } catch (err) {
+    console.error("getReward失败:", err);
+  }
+};
 </script>
 
 <style scoped>

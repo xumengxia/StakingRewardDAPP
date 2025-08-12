@@ -22,28 +22,22 @@
     </header> -->
     <div class="content">
       <!-- 核心数据卡片 -->
-      <div>
+      <div style="display: flex; justify-content: space-between">
         <!-- 总质押量 -->
         <div>
           <h2>总质押量</h2>
-          <p>ETH</p>
+          <p>{{ Store.stakData.totalSupply }}ETH</p>
         </div>
         <!-- 奖励池 -->
         <div>
           <h2>奖励池</h2>
-          <p>ETH</p>
+          <p>{{ Store.rewardsData.totalSupply }}ETH</p>
         </div>
         <!-- 剩余时长 -->
         <div>
           <h2>奖励时长</h2>
-          <p>秒</p>
+          <p>{{ Store.stakingRewardsData.duration }}秒</p>
         </div>
-      </div>
-
-      <!-- 快捷操作 -->
-      <div class="mt-8 flex justify-center space-x-4">
-        <a href="/staking" class="px-8 py-3 bg-green-600 rounded">质押</a>
-        <a href="/withdraw" class="px-8 py-3 bg-purple-600 rounded">提取</a>
       </div>
     </div>
     <el-divider />
@@ -69,11 +63,7 @@ import { HDNodeWallet } from "ethers/wallet";
 import stakingRewards from "./components/stakingRewards.vue";
 import rewards from "./components/rewards.vue";
 import staking from "./components/staking.vue";
-import token1Abi from "@/contract/artifacts/Token1_metadata.json";
-import token2Abi from "@/contract/artifacts/Token2_metadata.json";
-import stakingRewardsAbi from "@/contract/artifacts/StakingRewards_metadata.json";
 import { useStore } from "@/store/index";
-import { validateNumberInput } from "@/utils/validation.ts";
 const Store = useStore();
 const activeName = ref("first");
 const handleClick = (tab) => {

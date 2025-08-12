@@ -1,5 +1,5 @@
 <template>
-  <div class="rewards">
+  <div class="staking">
     <statistic :statisticArr="statisticArr"></statistic>
     <div class="mrg-top">
       <el-input
@@ -12,6 +12,9 @@
       >
       <el-button class="mrg-lef" type="primary" @click="approveFun"
         >approve</el-button
+      >
+      <el-button class="mrg-lef" type="primary" @click="balanceOfFun"
+        >checkBalance</el-button
       >
     </div>
   </div>
@@ -61,6 +64,21 @@ const approveFun = async () => {
 };
 const clearFun = () => {
   stakinitialSupply.value = "";
+};
+const balanceOfFun = async () => {
+  try {
+    const balance = await Store.contracts.staking.balanceOf(
+      Store.currentAccount
+    );
+    Store.$patch({
+      stakData: {
+        balance: ethers.utils.formatEther(balance),
+      },
+    });
+    ElMessage({ message: "success", type: "success" });
+  } catch (err) {
+    ElMessage({ message: err, type: "error" });
+  }
 };
 onMounted(() => {
   // console.log("2");
