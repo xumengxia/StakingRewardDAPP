@@ -13,7 +13,7 @@
       </div>
       <div class="flex-Box mrg-top">
         <el-button type="primary" @click="balanceOfFun">balanceOf</el-button>
-        <el-input class="mrg-lef" v-model="address" placeholder="Eth" />
+        <el-input class="mrg-lef" v-model="address" placeholder="address" />
       </div>
     </div>
   </div>
@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { ethers } from "ethers";
 import { useStore } from "@/store/index";
 import statistic from "@/components/statistic.vue";
 const Store = useStore();
@@ -44,24 +45,20 @@ const mintFun = async () => {
     ElMessage({ message: "success", type: "success" });
   } catch (err) {
     ElMessage({ message: err, type: "error" });
-    console.error("stak设置失败:", err);
   }
 };
 const address = ref("");
 const balanceOfFun = async () => {
   try {
     const tx = await Store.contracts.rewards.balanceOf(address.value);
-    // Store.$patch({ balanceOf: tx.toString() });
-    console.log("balanceOf成功！", tx);
+    address.value = "";
     ElMessage({ message: "success", type: "success" });
   } catch (err) {
     ElMessage({ message: err, type: "error" });
-    console.error("balanceOf失败:", err);
   }
 };
-onMounted(async () => {
-  //   console.log("2");
-});
+
+onMounted(async () => {});
 </script>
 
 <style scoped>

@@ -47,20 +47,17 @@
       </div>
     </div>
     <el-divider />
-    <div class="step">
-      <!-- 质押合约 -->
-      <h2 class="mrg-bot">staking合约</h2>
-      <staking></staking>
-      <el-divider />
-      <!-- 奖励合约 -->
-      <h2 class="mrg-bot">rewards合约</h2>
-      <rewards></rewards>
-      <el-divider />
-      <!-- 质押奖励合约 -->
-      <h2 class="mrg-bot">stakingRewards合约</h2>
-      <stakingRewards></stakingRewards>
-      <el-divider />
-    </div>
+    <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+      <el-tab-pane label="Staking" name="first">
+        <staking></staking>
+      </el-tab-pane>
+      <el-tab-pane label="Rewards" name="second">
+        <rewards></rewards>
+      </el-tab-pane>
+      <el-tab-pane label="StakingRewards" name="third">
+        <stakingRewards></stakingRewards>
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
@@ -78,49 +75,9 @@ import stakingRewardsAbi from "@/contract/artifacts/StakingRewards_metadata.json
 import { useStore } from "@/store/index";
 import { validateNumberInput } from "@/utils/validation.ts";
 const Store = useStore();
-
-// 1. 在rewardsToken  中向stakingRwards中mint1000eth
-
-const checkDurationFun = async () => {
-  if (!Store.contracts.stakingRewards) return console.error("合约未初始化");
-  // 调用合约的只读方法（返回 BigNumber，需转字符串）
-  const _duration = await Store.contracts.stakingRewards.duration();
-  Store.$patch({
-    contractData: { duration: _duration },
-  });
-};
-
-const stakeFun = async () => {
-  try {
-    const tx = await Store.contracts.stakingRewards.stake(
-      userStakeAmount.value
-    );
-    await tx.wait(); // 等待区块确认
-    console.log("质押成功！", Store.contracts.stakingRewards);
-  } catch (err) {
-    console.error("质押失败:", err);
-  }
-};
-const earnedFun = async () => {
-  try {
-    const tx = await Store.contracts.stakingRewards.earned(
-      Store.currentAccount
-    );
-    Store.$patch({ earned: tx.toString() });
-    // 等待区块确认
-    console.log("earned成功！", tx);
-  } catch (err) {
-    console.error("earned失败:", err);
-  }
-};
-const getRewardFun = async () => {
-  try {
-    const tx = await Store.contracts.stakingRewards.getReward();
-    await tx.wait(); // 等待区块确认
-    console.log("getReward成功！", tx);
-  } catch (err) {
-    console.error("getReward失败:", err);
-  }
+const activeName = ref("first");
+const handleClick = (tab) => {
+  console.log(tab);
 };
 onMounted(async () => {});
 </script>
@@ -136,8 +93,6 @@ onMounted(async () => {});
     margin: 0, 10px;
     display: flex; /* 新增，开启Flex布局 */
     align-items: center;
-  }
-  .content {
   }
 }
 </style>

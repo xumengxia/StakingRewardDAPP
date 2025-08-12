@@ -1,8 +1,6 @@
 <template>
   <div class="rewards">
     <statistic :statisticArr="statisticArr"></statistic>
-    <!-- {{ Store.rewardsData }} -->
-
     <div class="mrg-top">
       <el-input
         v-model="stakinitialSupply"
@@ -22,6 +20,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useStore } from "@/store/index";
+import { ethers } from "ethers";
 import statistic from "@/components/statistic.vue";
 const Store = useStore();
 
@@ -45,7 +44,6 @@ const mintFun = async () => {
     ElMessage({ message: "success", type: "success" });
   } catch (err) {
     ElMessage({ message: err, type: "error" });
-    console.error("stak-mint设置失败:", err);
   }
 };
 const approveFun = async () => {
@@ -55,14 +53,17 @@ const approveFun = async () => {
       stakinitialSupply.value
     );
     await Tx.wait(); // 等待区块确认
+    clearFun();
     ElMessage({ message: "success", type: "success" });
   } catch (err) {
     ElMessage({ message: err, type: "error" });
-    console.error("stak-approve设置失败:", err);
   }
 };
-onMounted(async () => {
-  //   console.log("2");
+const clearFun = () => {
+  stakinitialSupply.value = "";
+};
+onMounted(() => {
+  // console.log("2");
 });
 </script>
 

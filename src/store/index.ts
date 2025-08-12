@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { markRaw } from "vue";
 import { ethers } from "ethers";
-import { BrowserProvider, parseUnits, Signer, Contract } from "ethers";
+import { BrowserProvider, parseUnits, Signer, Contract, Network } from "ethers";
 import token1Abi from "@/contract/artifacts/Token1_metadata.json";
 import token2Abi from "@/contract/artifacts/Token2_metadata.json";
 import stakingRewardsAbi from "@/contract/artifacts/StakingRewards_metadata.json";
@@ -12,6 +12,7 @@ export const useStore = defineStore("walletContracts", {
     signer: null as Signer | null,
     currentAccount: "",
     isConnected: false,
+    network: null as Network | null,
 
     // 合约实例
     contracts: {
@@ -26,27 +27,29 @@ export const useStore = defineStore("walletContracts", {
       name: null,
       symbol: null,
       totalSupply: null,
+      balance: null,
     },
     rewardsData: {
       decimals: null,
       name: null,
       symbol: null,
       totalSupply: null,
+      balance: null,
     },
     stakingRewardsData: {
       // stakingToken: null,
       // rewardsToken: null,
       // owner: null,
-      duration: null,
-      finishAt: null,
-      updatedAt: null,
-      rewardRate: null,
-      // rewardPerTokenStored: null,
-      // userRewardPerTokenPaid: null,
-      rewards: null,
+      duration: 0,
+      finishAt: 0,
+      updatedAt: 0,
+      rewardRate: 0,
+      rewardPerTokenStored: null,
       totalSupply: null,
       balanceOf: null,
       earned: null,
+      rewards: null,
+      userRewardPerTokenPaid: null,
     },
 
     // 错误信息
@@ -69,6 +72,7 @@ export const useStore = defineStore("walletContracts", {
 
         this.provider = markRaw(new ethers.BrowserProvider(window.ethereum));
         this.signer = markRaw(await this.provider.getSigner());
+        this.network = await this.provider.getNetwork();
         const token1Address = import.meta.env.VITE_TOKEN1_ADDRESS;
         const token2Address = import.meta.env.VITE_TOKEN2_ADDRESS;
         const stakingRewardsAddress = import.meta.env
@@ -89,6 +93,7 @@ export const useStore = defineStore("walletContracts", {
             this.signer
           )
         );
+        console.log(this.contracts.rewards);
 
         await this.fetchContractData();
         await this.fetchrewardsData();
@@ -110,48 +115,50 @@ export const useStore = defineStore("walletContracts", {
           duration,
           finishAt,
           updatedAt,
-          // rewardRate,
-          // rewardPerTokenStored,
-          // userRewardPerTokenPaid,
-          // rewards,
-          // totalSupply,
-          // balanceOf,
-          // earned,
+          rewardRate,
+          rewardPerTokenStored,
+          totalSupply,
+          balanceOf,
+          earned,
+          rewards,
+          userRewardPerTokenPaid,
         ] = await Promise.all([
           // this.contracts.stakingRewards.stakingToken(),
           // this.contracts.stakingRewards.rewardsToken(),
           // this.contracts.stakingRewards.owner(),
-          this.contracts.stakingRewards.duration(),
-          this.contracts.stakingRewards.finishAt(),
-          this.contracts.stakingRewards.updatedAt(),
-          // this.contracts.stakingRewards.rewardRate(),
-          // this.contracts.stakingRewards.rewardPerTokenStored(),
-          // this.contracts.stakingRewards.userRewardPerTokenPaid(),
-          // this.contracts.stakingRewards.rewards(),
-          // this.contracts.stakingRewards.totalSupply(),
-          // this.contracts.stakingRewards.balanceOf(this.currentAccount),
-          // this.contracts.stakingRewards.earned(this.currentAccount),
+          this.contracts.stakingRewards.duration().catch(() => 0),
+          this.contracts.stakingRewards.finishAt().catch(() => 0),
+          this.contracts.stakingRewards.updatedAt().catch(() => 0),
+          this.contracts.stakingRewards.rewardRate().catch(() => 0),
+          this.contracts.stakingRewards.rewardPerTokenStored().catch(() => 0),
+          this.contracts.stakingRewards.totalSupply().catch(() => 0),
+          this.contracts.stakingRewards
+            .balanceOf(this.currentAccount)
+            .catch(() => 0),
+          this.contracts.stakingRewards
+            .earned(this.currentAccount)
+            .catch(() => 0),
+          this.contracts.stakingRewards
+            .rewards(this.currentAccount)
+            .catch(() => 0),
+          this.contracts.stakingRewards
+            .userRewardPerTokenPaid(this.currentAccount)
+            .catch(() => 0),
         ]);
-        const formattedFinishAt = finishAt
-          ? new Date(Number(finishAt) * 1000).toLocaleString()
-          : null;
-        const formattedUpdatedAt = updatedAt
-          ? new Date(Number(updatedAt) * 1000).toLocaleString()
-          : null;
         this.stakingRewardsData = {
           // stakingToken: this.formattedAccount(stakingToken),
           // rewardsToken: this.formattedAccount(rewardsToken),
           // owner: this.formattedAccount(owner),
           duration: Number(duration),
-          finishAt: formattedFinishAt, //new Date(Number(finishAt) * 1000).toLocaleString(),
-          updatedAt: formattedUpdatedAt,
-          // rewardRate,
-          // rewardPerTokenStored,
-          // userRewardPerTokenPaid,
-          // rewards,
-          // totalSupply: null, //totalSupply ? BigInt(totalSupply.toString()) : null,
-          // balanceOf: ethers.formatEther(balanceOf),
-          // earned: ethers.formatEther(earned),
+          finishAt: new Date(Number(finishAt) * 1000).toLocaleString(),
+          updatedAt: new Date(Number(updatedAt) * 1000).toLocaleString(),
+          rewardRate: ethers.formatEther(rewardRate),
+          rewardPerTokenStored: ethers.formatEther(rewardPerTokenStored),
+          totalSupply: ethers.formatEther(totalSupply) + "Eth",
+          balanceOf: ethers.formatEther(balanceOf) + "Eth",
+          earned: ethers.formatEther(earned) + "Eth",
+          rewards: ethers.formatEther(rewards) + "Eth",
+          userRewardPerTokenPaid: ethers.formatEther(userRewardPerTokenPaid),
         };
       } catch (error) {
         this.handleError(error);
@@ -167,14 +174,12 @@ export const useStore = defineStore("walletContracts", {
           this.contracts.rewards.symbol(),
           this.contracts.rewards.totalSupply(),
         ]);
-        const supplyStr = totalSupply?.toString() || "0";
-        const formattedSupply = ethers.formatEther(supplyStr) + "Eth";
 
         this.rewardsData = {
-          decimals: decimals > 0 ? decimals : 18,
+          decimals: decimals,
           name: name,
           symbol: symbol,
-          totalSupply: formattedSupply,
+          totalSupply: ethers.formatEther(totalSupply) + "Eth",
         };
       } catch (error) {
         this.handleError(error);
@@ -190,13 +195,12 @@ export const useStore = defineStore("walletContracts", {
           this.contracts.staking.symbol(),
           this.contracts.staking.totalSupply(),
         ]);
-        const supplyStr = totalSupply?.toString() || "0";
-        const formattedSupply = ethers.formatEther(supplyStr) + "Eth";
+
         this.stakData = {
-          decimals: decimals > 0 ? decimals : 18,
+          decimals: decimals,
           name: name,
           symbol: symbol,
-          totalSupply: formattedSupply,
+          totalSupply: ethers.formatEther(totalSupply) + "Eth",
         };
       } catch (error) {
         this.handleError(error);
