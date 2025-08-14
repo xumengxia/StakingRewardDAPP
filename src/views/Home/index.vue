@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { ethers } from "ethers";
 import { BrowserProvider, parseUnits } from "ethers";
 import { HDNodeWallet } from "ethers/wallet";
@@ -69,6 +69,67 @@ const activeName = ref("first");
 const handleClick = (tab) => {
   console.log(tab);
 };
+
+// 假设 Store.contracts.staking 是响应式状态
+watch(
+  () => Store.contracts.staking,
+  async (newContract, oldContract) => {
+    if (newContract && !oldContract) {
+      // 合约从“未初始化”变为“已初始化”
+      console.log("合约已初始化，开始加载数据...");
+      // 执行初始化后的操作（如获取合约数据）
+      await loadContractData(newContract);
+    }
+  },
+  { immediate: true } // 立即执行一次（处理初始状态）
+);
+watch(
+  () => Store.contracts.rewards,
+  async (newContract, oldContract) => {
+    if (newContract && !oldContract) {
+      // 合约从“未初始化”变为“已初始化”
+      console.log("合约已初始化，开始加载数据...");
+      // 执行初始化后的操作（如获取合约数据）
+      await loadContractData(newContract);
+    }
+  },
+  { immediate: true } // 立即执行一次（处理初始状态）
+);
+watch(
+  () => Store.contracts.stakingRewards,
+  async (newContract, oldContract) => {
+    if (newContract && !oldContract) {
+      // 合约从“未初始化”变为“已初始化”
+      console.log("合约已初始化，开始加载数据...");
+      // 执行初始化后的操作（如获取合约数据）
+      await loadContractData(newContract);
+    }
+  },
+  { immediate: true } // 立即执行一次（处理初始状态）
+);
+
+// 初始化后的数据加载函数
+async function loadContractData(contract) {
+  Store.$patch({
+    rewardsData: {
+      decimals: await contract.decimals(),
+      name: await contract.name(),
+      symbol: await contract.symbol(),
+      totalSupply: ethers.formatEther(await contract.totalSupply()),
+      balance: ethers.formatEther(
+        await contract.balanceOf(Store.currentAccount)
+      ),
+    },
+  });
+  // Store.rewardsData = {
+  //   decimals: await contract.decimals(),
+  //   name: await contract.name(),
+  //   symbol: await contract.symbol(),
+  //   totalSupply: ethers.formatEther(await contract.totalSupply()),
+  //   balance: ethers.formatEther(await contract.balanceOf(Store.currentAccount)),
+  // };
+}
+
 onMounted(async () => {});
 </script>
 

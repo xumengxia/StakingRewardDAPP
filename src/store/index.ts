@@ -5,6 +5,13 @@ import { BrowserProvider, parseUnits, Signer, Contract, Network } from "ethers";
 import token1Abi from "@/contract/artifacts/Token1_metadata.json";
 import token2Abi from "@/contract/artifacts/Token2_metadata.json";
 import stakingRewardsAbi from "@/contract/artifacts/StakingRewards_metadata.json";
+interface RewardsData {
+  decimals: number | null;
+  name: string | null;
+  symbol: string | null;
+  totalSupply: string | null;
+  balance: string | null;
+}
 export const useStore = defineStore("walletContracts", {
   state: () => ({
     // 钱包核心对象
@@ -28,14 +35,14 @@ export const useStore = defineStore("walletContracts", {
       symbol: null,
       totalSupply: null,
       balance: null,
-    },
+    } as RewardsData,
     rewardsData: {
       decimals: null,
       name: null,
       symbol: null,
       totalSupply: null,
       balance: null,
-    },
+    } as RewardsData,
     stakingRewardsData: {
       // stakingToken: null,
       // rewardsToken: null,
@@ -96,8 +103,8 @@ export const useStore = defineStore("walletContracts", {
         console.log(this.contracts.rewards);
 
         await this.fetchContractData();
-        await this.fetchrewardsData();
-        await this.fetchStakData();
+        // await this.fetchrewardsData();
+        // await this.fetchStakData();
         this.setupAccountChangeListener(); // 添加账户变化监听
       } catch (error) {
         this.handleError(error);
