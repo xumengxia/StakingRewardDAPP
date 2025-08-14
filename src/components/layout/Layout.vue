@@ -22,6 +22,10 @@
           <el-icon><i-ep-Setting /></el-icon>
           <span>Profile</span>
         </el-menu-item>
+        <el-menu-item index="/ethers">
+          <el-icon><i-ep-Setting /></el-icon>
+          <span>ethers</span>
+        </el-menu-item>
       </el-menu>
       <div class="themeBox">
         <div class="left">

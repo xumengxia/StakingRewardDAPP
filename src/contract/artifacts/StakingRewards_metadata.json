@@ -22,6 +22,81 @@
 				"type": "constructor"
 			},
 			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "reward",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "RewardPaid",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "Staked",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "Withdrawn",
+				"type": "event"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -344,11 +419,11 @@
 			]
 		},
 		"StakingRewards.sol": {
-			"keccak256": "0xa3f2ac88ae54931323b7e58c830007caf96e78e4552bee831d9ae01383593981",
+			"keccak256": "0x5b43f4628f03159552ec96199238ac392c96bfccf3cbfecb75a2c103c2a1338a",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://2ccae1d45a3759dc67affbc0302a1813ec7bfbe750d2ebc14e2435384cd4461a",
-				"dweb:/ipfs/QmXtJsB2YjKUSiEdBnDo7CLSJvV6hdT7f4LejvGw6W5oTk"
+				"bzz-raw://b2758db0562a69fa8acd9a157292ab37bf675c90c71cbbdda44e8420c5392453",
+				"dweb:/ipfs/QmW4E7BBBUX3EFfg8qfmY74H65ozeus7wMyo1wDVtKW5Nx"
 			]
 		}
 	},

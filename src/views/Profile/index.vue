@@ -32,18 +32,27 @@
 </template>
 
 <script setup lang="ts">
+  import { ethers } from "ethers";
 import { useStore } from "@/store/index";
 const Store = useStore();
 const checkFun = async () => {
   const currentBlock = await Store.provider.getBlockNumber(); // 获取当前区块
   console.log("当前区块：", currentBlock);
-  // const filter = Store.contracts.stakingRewards.filters.Transfer;
-  const events = await Store.contracts.stakingRewards.queryFilter(
-    null, // 传入 null 表示不筛选特定事件
-    0, // 起始区块：创世块
-    "latest" // 结束区块：最新块
-  );
-  console.log("查询历史事件：", events, events.length);
+// 获取从区块0到最新区块的所有Staked事件
+const filter = Store.contracts.stakingRewards.filters.Staked();
+const events = await Store.contracts.stakingRewards.queryFilter(filter, 0, "latest");
+
+console.log(events,'events');
+
+// 遍历历史事件
+events.forEach(event => {
+  const { user, amount, timestamp } = event.args;
+  console.log(user, amount, timestamp );
+ 
+  console.log(ethers.formatEther(amount));
+  
+  // console.log(`历史记录：用户 ${user} 在 ${new Date(timestamp * 1000)} 质押了 ${ethers.formatEther(amount)} 代币`);
+});
 };
 </script>
 
