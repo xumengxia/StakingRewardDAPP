@@ -10,13 +10,13 @@
       <el-tab-pane label="Providers" name="third">
         <Providers></Providers>
       </el-tab-pane>
-      <el-tab-pane label="Transactiongs" name="third">
+      <el-tab-pane label="Transactiongs" name="fourth">
         <Transactiongs></Transactiongs>
       </el-tab-pane>
-      <el-tab-pane label="Wallets" name="third">
+      <el-tab-pane label="Wallets" name="fifth">
         <Wallets></Wallets>
       </el-tab-pane>
-      <el-tab-pane label="Utilities" name="third">
+      <el-tab-pane label="Utilities" name="sixth">
         <Utilities></Utilities>
       </el-tab-pane>
     </el-tabs>
