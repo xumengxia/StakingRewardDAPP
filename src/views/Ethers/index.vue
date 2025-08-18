@@ -29,7 +29,7 @@
   import Providers from "@/views/Ethers/components/Providers.vue";
   import Transactiongs from "@/views/Ethers/components/Transactiongs.vue";
   import Wallets from "@/views/Ethers/components/Wallets.vue";
-  import Utilities from "@/views/Ethers/components/Utilities.vue";
+  import Utilities from "@/views/Ethers/components/Utilities/index.vue";
   const activeName = ref("first");
   const handleClick = (tab) => {
     console.log(tab);
