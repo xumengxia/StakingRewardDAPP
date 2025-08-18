@@ -78,7 +78,11 @@ contract StakingRewards {
         stakingToken.transferFrom(msg.sender, address(this), _amount);
         balanceOf[msg.sender] += _amount;
         totalSupply += _amount;
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 533d31234f45d754ff454889a87270f0a35c5066
         // 触发质押事件
         emit Staked(msg.sender, _amount, block.timestamp);
     }
@@ -88,7 +92,11 @@ contract StakingRewards {
         balanceOf[msg.sender] -= _amount;
         totalSupply -= _amount;
         stakingToken.transfer(msg.sender, _amount);
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 533d31234f45d754ff454889a87270f0a35c5066
         // 触发提取事件
         emit Withdrawn(msg.sender, _amount, block.timestamp);
     }
@@ -120,7 +128,11 @@ contract StakingRewards {
         if (reward > 0) {
             rewards[msg.sender] = 0;
             rewardsToken.transfer(msg.sender, reward);
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 533d31234f45d754ff454889a87270f0a35c5066
             // 触发奖励领取事件
             emit RewardPaid(msg.sender, reward, block.timestamp);
         }

@@ -5,6 +5,7 @@ import Staking from "@/views/Staking/index.vue";
 import Withdraw from "@/views/withdraw/index.vue";
 import Profile from "@/views/Profile/index.vue";
 import Layout from "@/components/layout/Layout.vue";
+import Ethers from "@/views/Ethers/index.vue"
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
@@ -33,6 +34,12 @@ const routes: RouteRecordRaw[] = [
         name: "Profile",
         component: Profile,
         meta: { title: "Profile" },
+      },
+      {
+        path: "ethers", // 路径：/profile
+        name: "ethers",
+        component: Ethers,
+        meta: { title: "ethers" },
       },
       {
         // 默认跳转首页
