@@ -20,7 +20,9 @@ export const useStore = defineStore("walletContracts", {
     currentAccount: "",
     isConnected: false,
     network: null as Network | null,
-
+    chainId: null,
+    nonce: null,
+    signature: null,
     // 合约实例
     contracts: {
       staking: null as Contract | null,
@@ -80,6 +82,7 @@ export const useStore = defineStore("walletContracts", {
         this.provider = markRaw(new ethers.BrowserProvider(window.ethereum));
         this.signer = markRaw(await this.provider.getSigner());
         this.network = await this.provider.getNetwork();
+        console.log(this.signature, "signature");
         const token1Address = import.meta.env.VITE_TOKEN1_ADDRESS;
         const token2Address = import.meta.env.VITE_TOKEN2_ADDRESS;
         const stakingRewardsAddress = import.meta.env
@@ -229,6 +232,7 @@ export const useStore = defineStore("walletContracts", {
           method: "eth_requestAccounts",
         });
         this.currentAccount = accounts[0];
+
         this.isConnected = true;
         await this.initContracts();
       } catch (error) {
