@@ -114,7 +114,7 @@
         });
         console.log();
 
-        row.result = legacyTx.isLegacy(); // 返回false
+        row.result = legacyTx.isLegacy(); // 返回false,理想返回true
         break;
       case "isLondon":
 

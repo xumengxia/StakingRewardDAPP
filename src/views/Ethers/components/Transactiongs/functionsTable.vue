@@ -15,6 +15,7 @@
 <script setup lang="ts">
   import { ethers } from "ethers";
   import { useStore } from "@/store/index";
+  import { processAuthResult } from '@/utils/commonTools.ts';
   const Store = useStore();
 
   const tableData = [
@@ -67,11 +68,7 @@
 
         const _authorizationify = ethers.authorizationify({ address: Store.currentAccount, chainId: chainId, nonce: nonce, signature: signature });
         console.log('_authorizationify', _authorizationify);
-
-        row.result = JSON.stringify(
-          _authorizationify,
-          (key, value) => typeof value === 'bigint' ? Number(value) : value
-        );
+        row.result = processAuthResult(_authorizationify)
 
         break;
 
