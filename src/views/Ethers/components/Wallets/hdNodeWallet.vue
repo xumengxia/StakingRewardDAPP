@@ -23,16 +23,17 @@
   <el-divider />
 
   <h4>METHODS:</h4>
-  <!-- <el-table :data="tableData" style="width: 100%">
+  <el-table :data="tableData" style="width: 100%">
     <el-table-column prop="name" label="函数名" width="180" />
+    <el-table-column prop="info" label="说明" />
     <el-table-column prop="data" label="实例输入" />
     <el-table-column prop="result" label="结果" />
     <el-table-column label="操作" width="80">
       <template #default="scope">
-        <el-button type="primary" size="small">Edit</el-button>
+        <el-button type="primary" size="small" @click="dataHelpeFun(scope.row)">Edit</el-button>
       </template>
     </el-table-column>
-  </el-table> -->
+  </el-table>
 </template>
 
 <script setup lang="ts">
@@ -130,25 +131,51 @@
   const tableData = [
     {
       name: "deriveChild",
-      info: "生成助记词对应的种子	",
-      data: 'deriveChild(index: Numeric)⇒ HDNodeVoidWallet',
-      result: "",
+      info: "根据索引派生子节点",
+      data: "deriveChild(index: Numeric)⇒ HDNodeWallet",
+      result: ""
     },
     {
       name: "derivePath",
-      info: "将熵转换为助记词短语	",
-      data: 'ederivePath(path: string)⇒ HDNodeVoidWallet',
-      result: "",
+      info: "根据路径派生节点",
+      data: "derivePath(path: string)⇒ HDNodeWallet",
+      result: ""
+    },
+    {
+      name: "encrypt",
+      info: "异步加密为JSON密钥库",
+      data: "encrypt(password: Uint8Array | string, progressCallback?: ProgressCallback)⇒ Promise<string>",
+      result: ""
+    },
+    {
+      name: "encryptSync",
+      info: "同步加密为JSON密钥库",
+      data: "encryptSync(password: Uint8Array | string)⇒ string",
+      result: ""
     },
     {
       name: "hasPath",
-      info: "验证助记词有效性		‌",
-      data: 'hasPath()⇒ boolean',
-      result: "",
+      info: "检测是否包含路径",
+      data: "hasPath()⇒ boolean",
+      result: ""
+    },
+    {
+      name: "neuter",
+      info: "创建去隐私化节点",
+      data: "neuter()⇒ HDNodeVoidWallet",
+      result: ""
+    },
+    {
+      name: "fromExtendedKey",
+      info: "从扩展密钥创建节点（静态方法）",
+      data: "HDNodeWallet.fromExtendedKey(extendedKey: string)⇒ HDNodeWallet | HDNodeVoidWallet",
+      result: ""
     }
   ];
-  // 初始化HD钱包
 
+  // 初始化HD钱包
+  const hdNodeWallet = ethers.Wallet.fromPhrase(Mnemonic.phrase);
+  const password = import.meta.env.VITE_PASSWORD;
   const dataHelpeFun = async (row) => {
     switch (row.name) {
       case "createRandom":
@@ -166,7 +193,39 @@
       case "fromSeed":
         // 从助记词生成种子
         const seed = await Mnemonic.computeSeed(Mnemonic.entropy);
-        log
+        const _fromSeed = await ethers.HDNodeWallet.fromSeed(seed)
+        row.result = processAuthResult(_fromSeed);
+        break;
+      case "deriveChild":
+        const _deriveChild = await hdNodeWallet.deriveChild(0);
+        row.result = processAuthResult(_deriveChild);
+        break;
+      case "derivePath":
+        const _derivePath = await hdNodeWallet.derivePath('0/1')
+        row.result = processAuthResult(_derivePath);
+        break;
+      case "encrypt":
+        const _encrypt = await hdNodeWallet.encrypt(password);
+        row.result = processAuthResult(_encrypt);
+        break;
+      case "encryptSync":
+        const _encryptSync = hdNodeWallet.encryptSync(password);
+        row.result = processAuthResult(_encryptSync);
+        break;
+      case "hasPath":
+        row.result = hdNodeWallet.hasPath()
+
+        break;
+      case "neuter":
+        const _neuter = await hdNodeWallet.neuter();
+        row.result = processAuthResult(_neuter);
+        break;
+      case "fromExtendedKey":
+        const hdWallet = await ethers.HDNodeWallet.fromMnemonic(Mnemonic)
+        const _extendedKey = await hdWallet.extendedKey
+        const _fromExtendedKey = await ethers.HDNodeWallet.fromExtendedKey(_extendedKey);
+        row.result = processAuthResult(_fromExtendedKey);
+
         break;
     }
   };

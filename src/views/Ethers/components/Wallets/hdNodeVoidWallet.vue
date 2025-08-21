@@ -93,6 +93,7 @@
   ];
   // 初始化HD钱包
   const hdNodeVoidWallet = ethers.Wallet.fromPhrase(Mnemonic.phrase);
+
   const dataHelpeFun = async (row) => {
     switch (row.name) {
       case "deriveChild":

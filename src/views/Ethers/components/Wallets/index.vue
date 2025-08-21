@@ -43,6 +43,12 @@
       <hdNodeWallet></hdNodeWallet>
     </el-card>
     <el-divider />
+
+    <h3>6. JSON Wallets </h3>
+    <el-card class="mrg-top">
+      <jsonWallet></jsonWallet>
+    </el-card>
+    <el-divider />
   </div>
 </template>
 
@@ -53,6 +59,7 @@
   import MnemonicTable from "./Mnemonic.vue";
   import hdNodeVoidWallet from "./hdNodeVoidWallet.vue";
   import hdNodeWallet from "./hdNodeWallet.vue";
+  import jsonWallet from "./jsonWallet.vue";
   import Wallet from "./Wallet.vue";
   const Store = useStore();
   const privateKey = import.meta.env.VITE_PRIVATEKEY;
