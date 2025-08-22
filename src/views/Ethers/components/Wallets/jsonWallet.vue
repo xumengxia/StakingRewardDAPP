@@ -115,13 +115,12 @@
         break;
       case "encryptKeystoreJson":
         const _privateKey = "0x" + privateKey;
-        console.log(_privateKey);
-
         const _encryptKeystoreJson = await ethers.encryptKeystoreJsonSync({ address: Store.currentAccount, privateKey: _privateKey }, password);
-        // row.result = processAuthResult(_encryptKeystoreJson);
+        row.result = processAuthResult(_encryptKeystoreJson);
         break;
       case "encryptKeystoreJsonSync":
-        // await ethers.encryptKeystoreJsonSync(await getJson(), password);
+        const _encryptKeystoreJsonSync = await ethers.encryptKeystoreJsonSync({ address: Store.currentAccount, privateKey: "0x" + privateKey }, password);
+        row.result = processAuthResult(_encryptKeystoreJsonSync);
         break;
       case "isCrowdsaleJson":
         row.result = await ethers.isCrowdsaleJson(await getJson());

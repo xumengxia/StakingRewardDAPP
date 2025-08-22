@@ -68,6 +68,31 @@
 						"type": "uint256"
 					}
 				],
+				"name": "SetDuration",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
 				"name": "Staked",
 				"type": "event"
 			},
@@ -419,11 +444,11 @@
 			]
 		},
 		"StakingRewards.sol": {
-			"keccak256": "0x5b43f4628f03159552ec96199238ac392c96bfccf3cbfecb75a2c103c2a1338a",
+			"keccak256": "0x6b7232875f8fc67848a3e03b183e2d370a01c372a0ee9359ad0e538c881bca3a",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://b2758db0562a69fa8acd9a157292ab37bf675c90c71cbbdda44e8420c5392453",
-				"dweb:/ipfs/QmW4E7BBBUX3EFfg8qfmY74H65ozeus7wMyo1wDVtKW5Nx"
+				"bzz-raw://7346bae1b10469ed6d0503b67ca249b1c9b830d6fcf5ddd4c6cfcb7f244bf948",
+				"dweb:/ipfs/QmYmiescCH39P33cLSFTvtrSnDEwGmQihfAPDMYGTRme4e"
 			]
 		}
 	},
