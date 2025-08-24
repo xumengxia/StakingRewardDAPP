@@ -58,7 +58,7 @@
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "amount",
+						"name": "duration",
 						"type": "uint256"
 					},
 					{
@@ -413,7 +413,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"StakingRewards.sol": "StakingRewards"
+			"contracts/StakingRewards.sol": "StakingRewards"
 		},
 		"evmVersion": "prague",
 		"libraries": {},
@@ -443,12 +443,12 @@
 				"dweb:/ipfs/QmeCfPykghhMc81VJTrHTC7sF6CRvaA1FXVq2pJhwYp1dV"
 			]
 		},
-		"StakingRewards.sol": {
-			"keccak256": "0x6b7232875f8fc67848a3e03b183e2d370a01c372a0ee9359ad0e538c881bca3a",
+		"contracts/StakingRewards.sol": {
+			"keccak256": "0x824bc7957a14c9fc605ee98b00f695c4d7f5d279e9c1d33504479851119661a5",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://7346bae1b10469ed6d0503b67ca249b1c9b830d6fcf5ddd4c6cfcb7f244bf948",
-				"dweb:/ipfs/QmYmiescCH39P33cLSFTvtrSnDEwGmQihfAPDMYGTRme4e"
+				"bzz-raw://e9b2d4ec7adae4a5429fde59e1faf590e653549e78dc4b8b282301043d53c595",
+				"dweb:/ipfs/QmSFaWUHanoBC8VooGKDghWhu8sXtUUF4cfFvnYTtDYVmm"
 			]
 		}
 	},
