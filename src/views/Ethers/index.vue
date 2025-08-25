@@ -26,7 +26,7 @@
 <script setup lang="ts">
   import Address from "@/views/Ethers/components/Address.vue";
   import Contracts from "@/views/Ethers/components/Contracts/index.vue";
-  import Providers from "@/views/Ethers/components/Providers.vue";
+  import Providers from "@/views/Ethers/components/Providers/index.vue";
   import Transactiongs from "@/views/Ethers/components/Transactiongs/index.vue";
   import Wallets from "@/views/Ethers/components/Wallets/index.vue";
   import Utilities from "@/views/Ethers/components/Utilities/index.vue";

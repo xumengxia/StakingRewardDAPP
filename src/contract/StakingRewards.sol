@@ -23,6 +23,7 @@ contract StakingRewards {
     event Staked(address indexed user, uint256 amount, uint256 timestamp);
     event Withdrawn(address indexed user, uint256 amount, uint256 timestamp);
     event RewardPaid(address indexed user, uint256 reward, uint256 timestamp);
+    event SetDuration(address indexed user, uint256 duration, uint256 timestamp);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "not owner");
@@ -50,6 +51,8 @@ contract StakingRewards {
     function setRewardsDuration(uint256 _duration) external onlyOwner {
         require(finishAt < block.timestamp, "reward duration not finished");
         duration = _duration;
+        // 触发设置时长事件
+        emit SetDuration(msg.sender, _duration, block.timestamp);
     }
 
     function notifyRewardAmount(uint256 _amount)

@@ -29,8 +29,7 @@
         getFragment(args: ContractEventArgs< A >)⇒ EventFragment
       </div>
       <el-button class="mrg-bot" type="primary" @click="getFragmentFun">
-        getFragment</el-button
-      >
+        getFragment</el-button>
     </el-card>
     <el-divider />
 
@@ -62,7 +61,8 @@
     <h3>8. class ContractTransactionReceipt合同交易收据</h3>
     <el-card class="mrg-top">
       <h4 class="mrg-bot">PROPERTIES:</h4>
-      <div class="code-comment mrg-bot">logs⇒ Array< EventLog | Log ></div>
+      <div class="code-comment mrg-bot">logs⇒ Array< EventLog | Log >
+      </div>
     </el-card>
     <el-divider />
 
@@ -70,38 +70,102 @@
     <el-card class="mrg-top">
       <h4 class="mrg-bot">METHODS:</h4>
       <div class="code-comment mrg-bot">
-        .wait(confirms?: number, timeout?: number)⇒ Promise< null |
-        ContractTransactionReceipt >
+        .wait(confirms?: number, timeout?: number)⇒ Promise< null | ContractTransactionReceipt >
       </div>
+    </el-card>
+    <el-divider />
+
+    <h3>10. class ContractUnknowmEventPayload合同未知事件有效负载</h3>
+    <el-card class="mrg-top">
+      <ContractUnknowmEventPayload @updateEvenload="updateEvenload"></ContractUnknowmEventPayload>
+    </el-card>
+    <el-divider />
+
+    <h3>11. interface DeferredTopicFilter 延迟主题过滤器</h3>
+    <el-card class="mrg-top">
+      <h4 class="mrg-bot">PROPERTIES:</h4>
+      <div class="code-comment mrg-bot">
+        fragment => EventFragment
+      </div>
+      <el-divider />
+
+      <h4 class="mrg-bot">METHODS:</h4>
+      <div class="code-comment mrg-bot">
+        getTopicFilter()⇒ Promise< TopicFilter >
+      </div>
+      <el-button class="mrg-bot" type="primary" @click="getTopicFilterFun">
+        getTopicFilter</el-button>
+    </el-card>
+    <el-divider />
+
+    <h3>12. class EventLog</h3>
+    <el-card class="mrg-top">
+      <h4 class="mrg-bot">PROPERTIES:</h4>
+      <div class="code-comment mrg-bot">
+        args⇒ Result | eventName⇒ string | eventSignature⇒ string | fragment⇒ EventFragment |interface⇒ Interface
+      </div>
+    </el-card>
+    <el-divider />
+
+    <h3>13. interface Overrides 重写</h3>
+    <el-divider />
+
+    <h3>13. interface UndecodedEventLog 未解码的事件日志</h3>
+    <el-card class="mrg-top">
+      <h4 class="mrg-bot">PROPERTIES:</h4>
+      <div class="code-comment mrg-bot">
+        error⇒ Error
+      </div>
+    </el-card>
+    <el-divider />
+
+    <h3>14. interface WrappedEventLog 包装的事件日志</h3>
+    <el-card class="mrg-top">
+      <h4 class="mrg-bot">METHODS:</h4>
+      <WrappedEventLog :eventLog="eventLog"></WrappedEventLog>
     </el-card>
     <el-divider />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ethers } from "ethers";
-import baseContract from "./baseContract.vue";
-import BaseContractMethod from "./BaseContractMethod.vue";
-import { useStore } from "@/store/index";
-import { processAuthResult } from "@/utils/commonTools";
-import contractFactory from "./contractFactory.vue";
-const Store = useStore();
+  import { ethers } from "ethers";
+  import baseContract from "./baseContract.vue";
+  import BaseContractMethod from "./BaseContractMethod.vue";
+  import { useStore } from "@/store/index";
+  import { processAuthResult } from "@/utils/commonTools";
+  import contractFactory from "./contractFactory.vue";
+  import ContractUnknowmEventPayload from "./ContractUnknowmEventPayload.vue";
+  import WrappedEventLog from "./WrappedEventLog.vue";
+  const Store = useStore();
 
-const getFragmentFun = async () => {
-  try {
-    // Get the event from the contract interface
-    const _getEvent = Store.contracts.stakingRewards.getEvent("SetDuration");
-    console.log("Event:", processAuthResult(_getEvent));
+  const getFragmentFun = async () => {
+    try {
+      // Get the event from the contract interface
+      const _getEvent = Store.contracts.stakingRewards.getEvent("SetDuration");
+      console.log("Event:", _getEvent);
 
-    // Get the fragment from the event
-    const _fragment = _getEvent.getFragment();
-    console.log("Fragment:", _fragment);
-  } catch (error) {
-    console.error("Error getting event fragment:", error);
+      // Get the fragment from the event
+      const _fragment = _getEvent.getFragment();
+      console.log("Fragment:", _fragment);
+    } catch (error) {
+      console.error("Error getting event fragment:", error);
+    }
+  };
+
+  const getTopicFilterFun = async () => {
+    // 使用 contract.filters 创建 DeferredTopicFilter
+    const deferredFilter = Store.contracts.stakingRewards.filters.SetDuration();
+    // 从 DeferredTopicFilter 获取 TopicFilter
+    const topicFilter = await deferredFilter.getTopicFilter();
+    console.log("TopicFilter:", topicFilter);
   }
-};
+  const eventLog = ref();
+  const updateEvenload = (val) => {
+    eventLog.value = val;
+  }
 </script>
 
 <style scoped>
-/* 页面样式 */
+  /* 页面样式 */
 </style>
