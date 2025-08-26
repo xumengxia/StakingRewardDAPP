@@ -50,15 +50,15 @@
   const Store = useStore();
   const eventLog = ref();
   const emit = defineEmits(['updateEvenload']);
-  Store.contracts.stakingRewards.on("SetDuration", (user, duration, timestamp, eventPayload) => {
-    // console.log("=== SetDuration 事件被触发 ===");
-    // console.log("用户地址:", user);
-    // console.log("时长:", duration.toString());
-    // console.log("时间戳:", timestamp.toString());
-    console.log("完整事件对象:", eventPayload);
-    eventLog.value = eventPayload;
-    emit('updateEvenload', eventPayload.log);
-  });
+  // Store.contracts.stakingRewards.on("SetDuration", (user, duration, timestamp, eventPayload) => {
+  //   // console.log("=== SetDuration 事件被触发 ===");
+  //   // console.log("用户地址:", user);
+  //   // console.log("时长:", duration.toString());
+  //   // console.log("时间戳:", timestamp.toString());
+  //   console.log("完整事件对象:", eventPayload);
+  //   eventLog.value = eventPayload;
+  //   emit('updateEvenload', eventPayload.log);
+  // });
 
 
   // 测试触发 SetDuration 事件

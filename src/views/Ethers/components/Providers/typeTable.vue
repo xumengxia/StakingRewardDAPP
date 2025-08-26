@@ -55,31 +55,7 @@
       example: "实现 WebSocket 长连接，实时同步区块链数据（如行情、游戏状态）"
     }
   ];
-  const copyRequestFun = () => {
-    const request = {
-      to: "0x0000000000000000000000000000000000000000",
-      value: ethers.parseEther("0.001"),
-      gasLimit: 21000,
-      gasPrice: ethers.parseUnits("100", "gwei")
-    };
-    const _request = ethers.copyRequest(request);
-    console.log(_request, "copyRequestFun");
-  };
-  const getDefaultProviderFun = () => {
-    // Connect to a local Geth node
-    const _provider1 = ethers.getDefaultProvider("http://localhost:8545/");
-    console.log(_provider1, "copyRequestFun");
-    // Connect to Ethereum mainnet with any current and future third-party services available
-    const _provider2 = ethers.getDefaultProvider("mainnet");
-    console.log(_provider2, "copyRequestFun");
-    // Connect to Polygon, but only allow Etherscan and
-    // INFURA and use "MY_API_KEY" in calls to Etherscan.
-    const _provider3 = ethers.getDefaultProvider("matic", {
-      etherscan: "KQJW5N5JVQVZZ1RJ2C4ZC1IQW3E1ZNNSAV",
-      exclusive: ["etherscan", "infura"]
-    });
-    console.log(_provider3, "copyRequestFun");
-  };
+
 
 </script>
 

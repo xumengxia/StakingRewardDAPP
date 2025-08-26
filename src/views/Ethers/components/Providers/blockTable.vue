@@ -36,7 +36,7 @@
 <script setup lang="ts">
   import { ethers } from "ethers";
   import { useStore } from "@/store/index";
-  import { processAuthResult } from '@/utils/commonTools.ts';
+  import { processAuthResult } from '@/utils/commonTools';
   const Store = useStore();
 
   const blockProperties = [

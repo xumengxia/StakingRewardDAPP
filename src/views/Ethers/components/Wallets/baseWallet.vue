@@ -27,7 +27,7 @@
 <script setup lang="ts">
   import { ethers } from "ethers";
   import { useStore } from "@/store/index";
-  import { processAuthResult } from '@/utils/commonTools.ts';
+  import { processAuthResult, getAuthParams } from '@/utils/commonTools.ts';
   const Store = useStore();
   const privateKey = import.meta.env.VITE_PRIVATEKEY;
   const signingKey = new ethers.SigningKey("0x" + privateKey);
@@ -55,11 +55,6 @@
       result: "",
     },
   ];
-  const getAuthParams = async () => {
-    const chainId = await window.ethereum.request({ method: "eth_chainId" });
-    const nonce = await Store.provider.getTransactionCount(Store.currentAccount);
-    return { address: Store.currentAccount, chainId, nonce };
-  };
 
   const dataHelpeFun = async (row) => {
     switch (row.name) {

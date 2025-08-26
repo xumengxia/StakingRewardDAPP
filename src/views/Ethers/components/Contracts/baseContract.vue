@@ -32,7 +32,7 @@
 <script setup lang="ts">
   import { ethers } from "ethers";
   import { useStore } from "@/store/index";
-  import { processAuthResult } from "@/utils/commonTools.ts";
+  import { processAuthResult } from "@/utils/commonTools";
   import stakingRewardsAbi from "@/contract/artifacts/StakingRewards_metadata.json";
   import helloworldAbi from "@/contract/artifacts/HelloWorld.json";
   const Store = useStore();
@@ -183,7 +183,7 @@
   const listener = (event) => {
     // console.log('监听事件:', event); getEvent
   };
-  Store.contracts.stakingRewards.on("SetDuration", listener);
+  // Store.contracts.stakingRewards.on("SetDuration", listener);
   const dataHelpeFun = async (row) => {
     switch (row.name) {
       case "addListener":

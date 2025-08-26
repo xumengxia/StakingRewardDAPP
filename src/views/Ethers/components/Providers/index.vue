@@ -34,7 +34,66 @@
       <h4 class="mrg-bot">PROPERTIES:</h4>
       <blockTable></blockTable>
     </el-card>
+    <el-divider />
 
+    <h3 class="mrg-bot">4. interface BrowserDiscoverOptions </h3>
+    <el-card class="mrg-top">
+      <h4 class="mrg-bot">PROPERTIES:</h4>
+      <div class="code-comment mrg-bot">
+        anyProvider=>boolean <br />
+        filter⇒ (found: Array< Eip6963ProviderInfo >) => null | BrowserProvider | Eip6963ProviderInfo<br />
+          provider⇒ Eip1193Provider |timeout⇒ number | window⇒ any
+      </div>
+      <el-button class="mrg-bot" type="primary" @click="setPropertiesFun">
+        setProperties</el-button>
+    </el-card>
+    <el-divider />
+
+    <h3 class="mrg-bot">5. class BroeserProvider</h3>
+    <el-card class="mrg-top">
+      <browserProvider></browserProvider>
+
+    </el-card>
+    <el-divider />
+
+    <h3 class="mrg-bot">13. interface Provider</h3>
+    <el-card class="mrg-top">
+      <Provider></Provider>
+    </el-card>
+    <el-divider />
+
+    <h3 class="mrg-bot">14. interface Signer</h3>
+    <el-card class="mrg-top">
+      <Signer></Signer>
+    </el-card>
+    <el-divider />
+
+    <h3 class="mrg-bot">15. class TransactionReceipt</h3>
+    <el-card class="mrg-top">
+      <TransactionReceipt></TransactionReceipt>
+    </el-card>
+    <el-divider />
+
+    <h3 class="mrg-bot">16. class TransactionRequest</h3>
+    <el-card class="mrg-top">
+      <TransactionRequest></TransactionRequest>
+    </el-card>
+    <el-divider />
+
+
+    <h3 class="mrg-bot">17. class TransactionResponse</h3>
+    <el-card class="mrg-top">
+      <TransactionResponse></TransactionResponse>
+    </el-card>
+    <el-divider />
+    <!-- 18/19 -->
+    <webSocket></webSocket>
+
+    <h3 class="mrg-bot">20. Network</h3>
+    <el-card class="mrg-top">
+      <netWork></netWork>
+
+    </el-card>
     <el-divider />
   </div>
 </template>
@@ -44,6 +103,14 @@
   import { useStore } from "@/store/index";
   import typeTable from "./typeTable.vue";
   import blockTable from "./blockTable.vue";
+  import browserProvider from "./browserProvider.vue";
+  import webSocket from "./webSocket.vue";
+  import TransactionResponse from "./TransactionResponse.vue";
+  import TransactionRequest from "./TransactionRequest.vue";
+  import TransactionReceipt from "./TransactionReceipt.vue";
+  import Provider from "./Provider.vue";
+  import Signer from "./Signer.vue";
+  import netWork from "./netWork.vue";
   const Store = useStore();
   const copyRequestFun = () => {
     const request = {
@@ -70,6 +137,22 @@
     });
     console.log(_provider3, "copyRequestFun");
   };
+  const setPropertiesFun = async () => {
+    // const provider = new ethers.BrowserProvider(window.ethereum, {
+    //   filter: (providers) => {
+    //     // 优先选择 Coinbase Wallet
+    //     const coinbase = providers.find(p => p.name === 'Coinbase Wallet');
+    //     if (coinbase) return coinbase;
+
+    //     // 回退到 MetaMask
+    //     const metaMask = providers.find(p => p.name === 'MetaMask');
+    //     return metaMask || null;
+    //   }
+    // });
+    console.log("setPropertiesFun");
+
+  }
+
 </script>
 
 <style scoped>
