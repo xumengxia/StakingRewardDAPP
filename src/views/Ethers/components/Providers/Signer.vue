@@ -21,7 +21,7 @@
 <script setup lang="ts">
   import { ethers } from "ethers";
   import { useStore } from "@/store/index";
-  import { processAuthResult } from '@/utils/commonTools';
+  import { processAuthResult, getAuthParams } from '@/utils/commonTools';
   const Store = useStore();
 
   const signerMethods = [
@@ -117,43 +117,9 @@
 
       switch (row.name) {
         case "authorize":
-          try {
-            // 检查是否有连接的钱包
-            if (!Store.signer || !Store.currentAccount) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
-
-            // 获取当前网络信息
-            const network = await Store.provider.getNetwork();
-            const nonce = await Store.provider.getTransactionCount(Store.currentAccount);
-
-            // 创建授权请求对象
-            const authorizationRequest = {
-              address: Store.currentAccount,
-              chainId: network.chainId,
-              nonce: nonce,
-              scope: ["read", "write"], // 授权范围
-              validUntilBlock: (await Store.provider.getBlockNumber()) + 1000, // 有效期到1000个区块后
-              executor: Store.currentAccount // 执行者地址
-            };
-
-            console.log("授权请求:", authorizationRequest);
-
-            // 调用 authorize 方法
-            const authorization = await Store.signer.authorize(authorizationRequest);
-
-            console.log("授权结果:", authorization);
-            row.result = processAuthResult({
-              success: true,
-              authorization: authorization,
-              request: authorizationRequest
-            });
-
-          } catch (error) {
-            console.error("❌ authorize 失败:", error);
-            row.result = `❌ 授权失败: ${error.message}`;
-          }
+          // const authParams = await getAuthParams();
+          // const _authorize = await baseWallet.authorize(authParams);
+          // row.result = processAuthResult(_authorize);
           break;
 
         case "call":
