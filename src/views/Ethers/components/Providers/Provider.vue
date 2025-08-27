@@ -8,450 +8,340 @@
     <el-table-column prop="name" label="名称" width="200" />
     <el-table-column prop="params" label="params" />
     <el-table-column prop="returnType" label="returnType" />
-    <el-table-column prop="desc" label="描述" />
+    <el-table-column prop="description" label="描述" />
     <el-table-column prop="result" label="结果" />
     <el-table-column label="操作" width="80">
-      <template #default="{row}">
-        <el-button type="primary" size="small" @click="methodHelpeFun(row)">Edit</el-button>
+      <template #default="{ row }">
+        <el-button type="primary" size="small" @click="methodHelpeFun(row)"
+          >Edit</el-button
+        >
       </template>
     </el-table-column>
   </el-table>
 </template>
 
 <script setup lang="ts">
-  import { ethers } from "ethers";
-  import { useStore } from "@/store/index";
-  import { processAuthResult } from '@/utils/commonTools';
-  const Store = useStore();
+import { ethers } from "ethers";
+import { useStore } from "@/store/index";
+import { processAuthResult } from "@/utils/commonTools";
+import { log } from "console";
+const Store = useStore();
 
-  const providerMethods = [
-    {
-      name: "broadcastTransaction",
-      params: ["signedTx: string"],
-      returnType: "Promise<TransactionResponse>",
-      description: "Broadcasts the signedTx to the network, adding it to the memory pool of any node for which the transaction meets the rebroadcast requirements."
-    },
-    {
-      name: "call",
-      params: ["tx: TransactionRequest"],
-      returnType: "Promise<string>",
-      description: "Simulate the execution of tx. If the call reverts, it will throw a CallExceptionError which includes the revert data."
-    },
-    {
-      name: "destroy",
-      params: [],
-      returnType: "void",
-      description: "Shutdown any resources this provider is using. No additional calls should be made to this provider after calling this."
-    },
-    {
-      name: "estimateGas",
-      params: ["tx: TransactionRequest"],
-      returnType: "Promise<bigint>",
-      description: "Estimates the amount of gas required to execute tx."
-    },
-    {
-      name: "getBalance",
-      params: ["address: AddressLike", "blockTag?: BlockTag"],
-      returnType: "Promise<bigint>",
-      description: "Get the account balance (in wei) of address. If blockTag is specified and the node supports archive access for that blockTag, the balance is as of that BlockTag."
-    },
-    {
-      name: "getBlock",
-      params: ["blockHashOrBlockTag: BlockTag | string", "prefetchTxs?: boolean"],
-      returnType: "Promise<null | Block>",
-      description: "Resolves to the block for blockHashOrBlockTag. If prefetchTxs, and the backend supports including transactions with block requests, all transactions will be included and the Block object will not need to make remote calls for getting transactions."
-    },
-    {
-      name: "getBlockNumber",
-      params: [],
-      returnType: "Promise<number>",
-      description: "Get the current block number."
-    },
-    {
-      name: "getCode",
-      params: ["address: AddressLike", "blockTag?: BlockTag"],
-      returnType: "Promise<string>",
-      description: "Get the bytecode for address."
-    },
-    {
-      name: "getFeeData",
-      params: [],
-      returnType: "Promise<FeeData>",
-      description: "Get the best guess at the recommended FeeData."
-    },
-    {
-      name: "getLogs",
-      params: ["filter: Filter | FilterByBlockHash"],
-      returnType: "Promise<Array<Log>>",
-      description: "Resolves to the list of Logs that match filter"
-    },
-    {
-      name: "getNetwork",
-      params: [],
-      returnType: "Promise<Network>",
-      description: "Get the connected Network."
-    },
-    {
-      name: "getStorage",
-      params: ["address: AddressLike", "position: BigNumberish", "blockTag?: BlockTag"],
-      returnType: "Promise<string>",
-      description: "Get the storage slot value for address at slot position."
-    },
-    {
-      name: "getTransaction",
-      params: ["hash: string"],
-      returnType: "Promise<null | TransactionResponse>",
-      description: "Resolves to the transaction for hash. If the transaction is unknown or on pruning nodes which discard old transactions this resolves to null."
-    },
-    {
-      name: "getTransactionCount",
-      params: ["address: AddressLike", "blockTag?: BlockTag"],
-      returnType: "Promise<number>",
-      description: "Get the number of transactions ever sent for address, which is used as the nonce when sending a transaction. If blockTag is specified and the node supports archive access for that blockTag, the transaction count is as of that BlockTag."
-    },
-    {
-      name: "getTransactionReceipt",
-      params: ["hash: string"],
-      returnType: "Promise<null | TransactionReceipt>",
-      description: "Resolves to the transaction receipt for hash, if mined. If the transaction has not been mined, is unknown or on pruning nodes which discard old transactions this resolves to null."
-    },
-    {
-      name: "getTransactionResult",
-      params: ["hash: string"],
-      returnType: "Promise<null | string>",
-      description: "Resolves to the result returned by the executions of hash. This is only supported on nodes with archive access and with the necessary debug APIs enabled."
-    },
-    {
-      name: "lookupAddress",
-      params: ["address: string"],
-      returnType: "Promise<null | string>",
-      description: "Resolves to the ENS name associated for the address or null if the primary name is not configured. Users must perform additional steps to configure a primary name, which is not currently common."
-    },
-    {
-      name: "resolveName",
-      params: ["ensName: string"],
-      returnType: "Promise<null | string>",
-      description: "Resolves to the address configured for the ensName or null if unconfigured."
-    },
-    {
-      name: "waitForBlock",
-      params: ["blockTag?: BlockTag"],
-      returnType: "Promise<Block>",
-      description: "Resolves to the block at blockTag once it has been mined. This can be useful for waiting some number of blocks by using the currentBlockNumber + N."
-    },
-    {
-      name: "waitForTransaction",
-      params: ["hash: string", "confirms?: number", "timeout?: number"],
-      returnType: "Promise<null | TransactionReceipt>",
-      description: "Waits until the transaction hash is mined and has confirms confirmations."
-    }
-  ];
+const providerMethods = [
+  {
+    name: "broadcastTransaction",
+    params: ["signedTx: string"],
+    returnType: "Promise<TransactionResponse>",
+    description:
+      "将已签名的交易广播到网络，将其添加到满足重新广播要求的任何节点的内存池中。",
+  },
+  {
+    name: "call",
+    params: ["tx: TransactionRequest"],
+    returnType: "Promise<string>",
+    description:
+      "模拟执行交易。如果调用回滚，将抛出包含回滚数据的 CallExceptionError。",
+  },
+  {
+    name: "destroy",
+    params: [],
+    returnType: "void",
+    description:
+      "关闭此提供者正在使用的任何资源。调用此方法后，不应再对此提供者进行任何额外调用。",
+  },
+  {
+    name: "estimateGas",
+    params: ["tx: TransactionRequest"],
+    returnType: "Promise<bigint>",
+    description: "估算执行交易所需的 gas 数量。",
+  },
+  {
+    name: "getBalance",
+    params: ["address: AddressLike", "blockTag?: BlockTag"],
+    returnType: "Promise<bigint>",
+    description:
+      "获取地址的账户余额（以 wei 为单位）。如果指定了 blockTag 且节点支持该 blockTag 的归档访问，则余额为该 BlockTag 时的余额。",
+  },
+  {
+    name: "getBlock",
+    params: ["blockHashOrBlockTag: BlockTag | string", "prefetchTxs?: boolean"],
+    returnType: "Promise<null | Block>",
+    description:
+      "解析为 blockHashOrBlockTag 对应的区块。如果 prefetchTxs 为真且后端支持在区块请求中包含交易，所有交易都将被包含，Block 对象将不需要为获取交易进行远程调用。",
+  },
+  {
+    name: "getBlockNumber",
+    params: [],
+    returnType: "Promise<number>",
+    description: "获取当前区块号。",
+  },
+  {
+    name: "getCode",
+    params: ["address: AddressLike", "blockTag?: BlockTag"],
+    returnType: "Promise<string>",
+    description: "获取地址的字节码。",
+  },
+  {
+    name: "getFeeData",
+    params: [],
+    returnType: "Promise<FeeData>",
+    description: "获取推荐费用数据的最佳猜测。",
+  },
+  {
+    name: "getLogs",
+    params: ["filter: Filter | FilterByBlockHash"],
+    returnType: "Promise<Array<Log>>",
+    description: "解析为与过滤器匹配的日志列表。",
+  },
+  {
+    name: "getNetwork",
+    params: [],
+    returnType: "Promise<Network>",
+    description: "获取已连接的网络。",
+  },
+  {
+    name: "getStorage",
+    params: [
+      "address: AddressLike",
+      "position: BigNumberish",
+      "blockTag?: BlockTag",
+    ],
+    returnType: "Promise<string>",
+    description: "获取地址在槽位 position 的存储槽值。",
+  },
+  {
+    name: "getTransaction",
+    params: ["hash: string"],
+    returnType: "Promise<null | TransactionResponse>",
+    description:
+      "解析为哈希对应的交易。如果交易未知或在丢弃旧交易的修剪节点上，则解析为 null。",
+  },
+  {
+    name: "getTransactionCount",
+    params: ["address: AddressLike", "blockTag?: BlockTag"],
+    returnType: "Promise<number>",
+    description:
+      "获取地址已发送的交易数量，发送交易时用作 nonce。如果指定了 blockTag 且节点支持该 blockTag 的归档访问，则交易数量为该 BlockTag 时的数量。",
+  },
+  {
+    name: "getTransactionReceipt",
+    params: ["hash: string"],
+    returnType: "Promise<null | TransactionReceipt>",
+    description:
+      "解析为哈希对应的交易收据（如果已挖矿）。如果交易尚未挖矿、未知或在丢弃旧交易的修剪节点上，则解析为 null。",
+  },
+  {
+    name: "getTransactionResult",
+    params: ["hash: string"],
+    returnType: "Promise<null | string>",
+    description:
+      "解析为哈希执行返回的结果。这仅在具有归档访问权限且启用了必要调试 API 的节点上受支持。",
+  },
+  {
+    name: "lookupAddress",
+    params: ["address: string"],
+    returnType: "Promise<null | string>",
+    description:
+      "解析为与地址关联的 ENS 名称，如果未配置主名称则解析为 null。用户必须执行额外步骤来配置主名称，这在目前并不常见。",
+  },
+  {
+    name: "resolveName",
+    params: ["ensName: string"],
+    returnType: "Promise<null | string>",
+    description: "解析为为 ensName 配置的地址，如果未配置则解析为 null。",
+  },
+  {
+    name: "waitForBlock",
+    params: ["blockTag?: BlockTag"],
+    returnType: "Promise<Block>",
+    description:
+      "一旦挖矿完成，解析为 blockTag 对应的区块。通过使用 currentBlockNumber + N 等待一定数量的区块时，这可能很有用。",
+  },
+  {
+    name: "waitForTransaction",
+    params: ["hash: string", "confirms?: number", "timeout?: number"],
+    description: "等待交易哈希被挖矿并获得 confirms 次确认。",
+  },
+];
 
-  const methodHelpeFun = async (row) => {
-    try {
-      // 只获取一次区块数据，避免重复调用
-      // const block = await Store.provider.getBlock("latest");
+const methodHelpeFun = async (row) => {
+  try {
+    // 只获取一次区块数据，避免重复调用
+    // const block = await Store.provider.getBlock("latest");
+    const txHash =
+      "0xdc872917c3fa8d9ed15d28607b845120bab17aae5ae7016c2476d2ca2032380d";
+    switch (row.name) {
+      case "broadcastTransaction":
+        try {
+          // 首先创建交易对象
+          const tx = {
+            to: Store.currentAccount,
+            value: ethers.parseEther("0.001"),
+            gasLimit: 21000,
+            nonce: await Store.signer.getNonce(),
+          };
+          console.log("交易对象:", tx);
 
-      switch (row.name) {
-        case "authorize":
+          // 由于 MetaMask 不支持 signTransaction，我们使用替代方案
+          // 方案1：尝试使用 signTransaction（如果支持）
           try {
-            // 检查是否有连接的钱包
-            if (!Store.signer || !Store.currentAccount) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
+            const signedTx = await Store.signer.signTransaction(tx);
+            console.log("已签名交易:", signedTx);
 
-            // 获取当前网络信息
-            const network = await Store.provider.getNetwork();
-            const nonce = await Store.provider.getTransactionCount(Store.currentAccount);
-
-            // 创建授权请求对象
-            const authorizationRequest = {
-              address: Store.currentAccount,
-              chainId: network.chainId,
-              nonce: nonce,
-              scope: ["read", "write"], // 授权范围
-              validUntilBlock: (await Store.provider.getBlockNumber()) + 1000, // 有效期到1000个区块后
-              executor: Store.currentAccount // 执行者地址
-            };
-
-            console.log("授权请求:", authorizationRequest);
-
-            // 调用 authorize 方法
-            const authorization = await Store.signer.authorize(authorizationRequest);
-
-            console.log("授权结果:", authorization);
-            row.result = processAuthResult({
-              success: true,
-              authorization: authorization,
-              request: authorizationRequest
-            });
-
-          } catch (error) {
-            console.error("❌ authorize 失败:", error);
-            row.result = `❌ 授权失败: ${error.message}`;
-          }
-          break;
-
-        case "call":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
-
-            // 模拟调用交易
-            const callTx = {
-              to: Store.currentAccount,
-              data: "0x",
-              value: 0n
-            };
-
-            const result = await Store.signer.call(callTx);
-            row.result = `✅ 调用成功: ${result}`;
-          } catch (error) {
-            row.result = `❌ 调用失败: ${error.message}`;
-          }
-          break;
-
-        case "connect":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
-
-            // 连接或断开提供者
-            const connectedSigner = Store.signer.connect(Store.provider);
-            row.result = `✅ 连接成功: ${connectedSigner.address}`;
-          } catch (error) {
-            row.result = `❌ 连接失败: ${error.message}`;
-          }
-          break;
-
-        case "estimateGas":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
-
-            // 估算 gas
-            const estimateTx = {
-              to: Store.currentAccount,
-              value: 0n
-            };
-
-            const gasEstimate = await Store.signer.estimateGas(estimateTx);
-            row.result = `✅ Gas 估算: ${gasEstimate.toString()}`;
-          } catch (error) {
-            row.result = `❌ Gas 估算失败: ${error.message}`;
-          }
-          break;
-
-        case "getAddress":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
-
-            const address = await Store.signer.getAddress();
-            row.result = `✅ 地址: ${address}`;
-          } catch (error) {
-            row.result = `❌ 获取地址失败: ${error.message}`;
-          }
-          break;
-
-        case "getNonce":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
-
-            const nonce = await Store.signer.getNonce();
-            row.result = `✅ Nonce: ${nonce}`;
-          } catch (error) {
-            row.result = `❌ 获取 Nonce 失败: ${error.message}`;
-          }
-          break;
-
-        case "populateAuthorization":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
-
-            const network = await Store.provider.getNetwork();
-            const nonce = await Store.provider.getTransactionCount(Store.currentAccount);
-
-            const authRequest = {
-              address: Store.currentAccount,
-              chainId: network.chainId,
-              nonce: nonce
-            };
-
-            const populatedAuth = await Store.signer.populateAuthorization(authRequest);
-            row.result = processAuthResult(populatedAuth);
-          } catch (error) {
-            row.result = `❌ 填充授权失败: ${error.message}`;
-          }
-          break;
-
-        case "populateCall":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
-
-            const callTx = {
-              to: Store.currentAccount,
-              data: "0x"
-            };
-
-            const populatedCall = await Store.signer.populateCall(callTx);
-            row.result = processAuthResult(populatedCall);
-          } catch (error) {
-            row.result = `❌ 填充调用失败: ${error.message}`;
-          }
-          break;
-
-        case "populateTransaction":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
-
-            const tx = {
-              to: Store.currentAccount,
-              value: ethers.parseEther("0.001")
-            };
-
-            const populatedTx = await Store.signer.populateTransaction(tx);
-            row.result = processAuthResult(populatedTx);
-          } catch (error) {
-            row.result = `❌ 填充交易失败: ${error.message}`;
-          }
-          break;
-
-        case "resolveName":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
-
-            // 尝试解析 ENS 名称
-            const ensName = "vitalik.eth";
-            const resolvedAddress = await Store.signer.resolveName(ensName);
-            row.result = resolvedAddress ? `✅ ${ensName} -> ${resolvedAddress}` : `❌ 无法解析 ${ensName}`;
-          } catch (error) {
-            row.result = `❌ 解析名称失败: ${error.message}`;
-          }
-          break;
-
-        case "sendTransaction":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
-
-            // 发送小额测试交易
-            const tx = {
-              to: Store.currentAccount,
-              value: ethers.parseEther("0.001"),
-              gasLimit: 21000
-            };
+            // 广播已签名的交易
+            const _tx = await Store.provider.broadcastTransaction(signedTx);
+            console.log("广播结果:", _tx);
+            row.result = `✅ 广播交易成功: ${_tx.hash}`;
+          } catch (signError) {
+            // 方案2：如果 signTransaction 不支持，直接发送交易
+            console.log(
+              "signTransaction 不支持，使用 sendTransaction:",
+              signError.message
+            );
 
             const txResponse = await Store.signer.sendTransaction(tx);
-            row.result = `✅ 交易已发送: ${txResponse.hash}`;
-          } catch (error) {
-            row.result = `❌ 发送交易失败: ${error.message}`;
+            console.log("直接发送交易结果:", txResponse);
+            row.result = `⚠️ MetaMask 不支持 signTransaction，已直接发送交易: ${txResponse.hash}`;
           }
-          break;
+        } catch (error) {
+          console.error("交易处理错误:", error);
+          row.result = `❌ 交易处理失败: ${error.message}`;
+        }
+        break;
+      case "call":
+        const callTx = {
+          to: Store.currentAccount,
+          data: "0x",
+          value: 0n,
+        };
+        const _callTx = await Store.provider.call(callTx);
+        row.result = `✅ 调用交易: ${_callTx}`;
+        break;
+      case "destroy":
+        await Store.provider.destroy();
+        row.result = `✅ 销毁提供者`;
+        break;
 
-        case "signMessage":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
+      case "estimateGas":
+        const estimateTx = {
+          to: Store.currentAccount,
+          value: 0n,
+        };
+        const _estimateTx = await Store.provider.estimateGas(estimateTx);
+        row.result = `✅ 估算交易: ${_estimateTx}`;
+        break;
 
-            const message = "Hello World!";
-            const signature = await Store.signer.signMessage(message);
-            row.result = `✅ 消息签名: ${signature}`;
-          } catch (error) {
-            row.result = `❌ 签名失败: ${error.message}`;
-          }
-          break;
+      case "getBalance":
+        const balance = await Store.provider.getBalance(Store.currentAccount);
+        row.result = `✅ 获取余额: ${balance}`;
+        break;
+      case "getBlock":
+        const block = await Store.provider.getBlock("latest");
+        console.log("最新区块", block);
 
-        case "signTransaction":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
+        row.result = `✅ 获取区块: ${block}`;
+        break;
 
-            const tx = {
-              to: Store.currentAccount,
-              value: ethers.parseEther("0.001"),
-              gasLimit: 21000,
-              nonce: await Store.signer.getNonce()
-            };
+      case "getBlockNumber":
+        const blockNumber = await Store.provider.getBlockNumber();
+        row.result = `✅ 获取区块号: ${blockNumber}`;
+        break;
 
-            const signedTx = await Store.signer.signTransaction(tx);
-            row.result = `✅ 交易已签名: ${signedTx.slice(0, 66)}...`;
-          } catch (error) {
-            row.result = `❌ 交易签名失败: ${error.message}`;
-          }
-          break;
+      case "getCode":
+        const code = await Store.provider.getCode(Store.currentAccount);
+        row.result = `✅ 获取代码: ${code}`;
+        break;
 
-        case "signTypedData":
-          try {
-            if (!Store.signer) {
-              row.result = "❌ 请先连接钱包";
-              return;
-            }
+      case "getFeeData":
+        const feeData = await Store.provider.getFeeData();
+        console.log("推荐费用", feeData);
 
-            const domain = {
-              name: 'Test App',
-              version: '1',
-              chainId: await Store.provider.getNetwork().then(n => n.chainId)
-            };
+        row.result = `✅ 获取费用数据: ${feeData}`;
+        break;
 
-            const types = {
-              Person: [
-                { name: 'name', type: 'string' },
-                { name: 'age', type: 'uint256' }
-              ]
-            };
+      case "getLogs":
+        const logs = await Store.provider.getLogs({
+          address: Store.currentAccount,
+        });
+        console.log("日志", logs);
 
-            const value = {
-              name: 'Alice',
-              age: 25
-            };
+        row.result = `✅ 获取日志: ${logs}`;
+        break;
+      case "getNetwork":
+        const network = await Store.provider.getNetwork();
+        console.log("网络", network);
 
-            const signature = await Store.signer.signTypedData(domain, types, value);
-            row.result = `✅ 类型数据签名: ${signature}`;
-          } catch (error) {
-            row.result = `❌ 类型数据签名失败: ${error.message}`;
-          }
-          break;
+        row.result = `✅ 获取网络: ${network}`;
+        break;
 
-      }
+      case "getStorage":
+        const storage = await Store.provider.getStorage(
+          Store.currentAccount,
+          0
+        );
+        console.log("存储", storage);
+        row.result = `✅ 获取存储: ${storage}`;
+        break;
 
+      case "getTransaction":
+        const transaction = await Store.provider.getTransaction(txHash);
+        console.log("交易", transaction);
+        row.result = `✅ 获取交易: ${transaction}`;
+        break;
 
-    } catch (error) {
-      console.error(`❌ 获取 ${row.name} 时出错:`, error);
-      row.result = "错误: " + error.message;
+      case "getTransactionCount":
+        const transactionCount = await Store.provider.getTransactionCount(
+          Store.currentAccount
+        );
+        console.log("交易数量", transactionCount);
+        row.result = `✅ 获取交易数量: ${transactionCount}`;
+        break;
+      case "getTransactionReceipt":
+        const transactionReceipt = await Store.provider.getTransactionReceipt(
+          txHash
+        );
+        console.log("交易收据", transactionReceipt);
+        row.result = `✅ 获取交易收据: ${transactionReceipt}`;
+        break;
+      case "getTransactionResult":
+        const transactionResult = await Store.provider.getTransactionResult(
+          txHash
+        );
+        console.log("交易结果", transactionResult);
+        row.result = `✅ 获取交易结果: ${transactionResult}`;
+        break;
+      case "lookupAddress":
+        const lookupAddress = await Store.provider.lookupAddress(
+          Store.currentAccount
+        );
+        console.log("lookupAddress", lookupAddress);
+        row.result = `✅ 获取lookupAddress: ${lookupAddress}`;
+        break;
+      case "resolveName":
+        const ensName = "0x3333333333333333333333333333333333333333";
+        const resolveName = await Store.provider.resolveName(ensName);
+        console.log("resolveName", resolveName);
+        row.result = `✅ 获取resolveName: ${resolveName}`;
+        break;
+      case "waitForBlock":
+        const blockTag = "latest";
+        const waitForBlock = await Store.provider.waitForBlock(blockTag);
+        console.log("waitForBlock", waitForBlock);
+        row.result = `✅ 获取waitForBlock: ${waitForBlock}`;
+        break;
+      case "waitForTransaction":
+        const waitForTransaction = await Store.provider.waitForTransaction(
+          txHash
+        );
+        console.log("waitForTransaction", waitForTransaction);
+        row.result = `✅ 获取waitForTransaction: ${waitForTransaction}`;
+        break;
     }
+  } catch (error) {
+    console.error(`❌ 获取 ${row.name} 时出错:`, error);
+    row.result = "错误: " + error.message;
   }
-
+};
 </script>
 
 <style scoped></style>
